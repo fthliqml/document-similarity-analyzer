@@ -40,6 +40,7 @@ Prinsip pemrograman fungsional sangat cocok untuk pipeline pemrosesan data:
 - **Immutability** — Data tidak diubah, melainkan ditransformasi menjadi data baru
 - **Composability** — Fungsi-fungsi kecil dapat digabungkan menjadi pipeline kompleks
 - **Testability** — Pure functions sangat mudah diuji karena deterministik
+- **Parallelization** — Pure functions dengan immutable data sangat mudah diparalelkan karena tidak ada shared mutable state, sehingga aman dari race conditions
 
 ### Keunikan Solusi
 
@@ -60,11 +61,11 @@ Proyek ini menggabungkan:
 | -------------- | ------------ | ---------------------------------- |
 | **Rust**       | Edition 2021 | Bahasa pemrograman utama           |
 | **Axum**       | 0.7          | HTTP web framework                 |
-| **Tokio**      | 1.x          | Async runtime                      |
+| **Tokio**      | 1.0          | Async runtime                      |
 | **Rayon**      | 1.8          | Parallel data processing           |
-| **Serde**      | 1.x          | Serialization/deserialization JSON |
-| **thiserror**  | 1.x          | Custom error types                 |
-| **anyhow**     | 1.x          | Error handling                     |
+| **Serde**      | 1.0          | Serialization/deserialization JSON |
+| **thiserror**  | 1.0          | Custom error types                 |
+| **anyhow**     | 1.0          | Error handling                     |
 | **tower-http** | 0.5          | HTTP middleware (CORS)             |
 | **tracing**    | 0.1          | Structured logging                 |
 
@@ -100,6 +101,68 @@ Hasil:
 - **1.0** = Dokumen identik
 - **0.0** = Dokumen tidak memiliki kesamaan
 - **0.0 - 1.0** = Tingkat kesamaan parsial
+
+#### Parallel Processing dengan Rayon
+
+Proyek ini mengimplementasikan **parallel processing** menggunakan library **Rayon** untuk meningkatkan performa pada CPU multi-core. Rayon memungkinkan paralelisasi dengan cara yang deklaratif dan aman.
+
+**Konsep Utama:**
+
+- **Data Parallelism** — Operasi yang sama diterapkan ke banyak data secara bersamaan
+- **Work Stealing** — Rayon secara otomatis mendistribusikan beban kerja antar thread
+- **Zero-Cost Abstraction** — Tidak ada overhead runtime yang signifikan
+
+**Alur Parallel Processing dalam Pipeline:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PARALLEL (Rayon)                         │
+├─────────────────────────────────────────────────────────────┤
+│  Doc1 ──► Normalize ──► Tokenize ──► TF                    │
+│  Doc2 ──► Normalize ──► Tokenize ──► TF    (bersamaan)     │
+│  Doc3 ──► Normalize ──► Tokenize ──► TF                    │
+│  ...                                                        │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SINGLE THREAD                            │
+│              Compute IDF (butuh semua TF)                   │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PARALLEL (Rayon)                         │
+│  TF1 + IDF ──► Vector1                                     │
+│  TF2 + IDF ──► Vector2    (bersamaan)                      │
+│  TF3 + IDF ──► Vector3                                     │
+│  ...                                                        │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PARALLEL (Rayon)                         │
+│  Row 0: [sim(0,0), sim(0,1), sim(0,2), ...]                │
+│  Row 1: [sim(1,0), sim(1,1), sim(1,2), ...]  (bersamaan)   │
+│  Row 2: [sim(2,0), sim(2,1), sim(2,2), ...]                │
+│  ...                                                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Implementasi Parallel di Kode:**
+
+| Lokasi        | Operasi                       | Method Rayon            |
+| ------------- | ----------------------------- | ----------------------- |
+| `pipeline.rs` | Normalisasi + Tokenisasi + TF | `par_iter().map()`      |
+| `pipeline.rs` | Vektorisasi TF-IDF            | `par_iter().map()`      |
+| `matrix.rs`   | Perhitungan Similarity Matrix | `into_par_iter().map()` |
+
+**Keuntungan Parallel Processing:**
+
+1. **Skalabilitas** — Performa meningkat linear dengan jumlah CPU cores
+2. **Efisiensi** — Memanfaatkan semua cores yang tersedia secara otomatis
+3. **Kemudahan** — Hanya perlu mengubah `.iter()` menjadi `.par_iter()`
+4. **Thread Safety** — Rayon menjamin tidak ada data race karena menggunakan immutable data
 
 ---
 
