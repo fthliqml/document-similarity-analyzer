@@ -1,7 +1,7 @@
 # Document Similarity Analyzer
 
 _Pendekatan Pemrograman Fungsional dengan Rust_  
-**Penulis:** [Nama 1], [Nama 2], [Nama 3]
+**Penulis:** Muhammad Fatihul Iqmal
 
 ---
 

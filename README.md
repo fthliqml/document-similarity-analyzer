@@ -230,4 +230,6 @@ MIT License
 
 ## 👤 Author
 
+**Muhammad Fatihul Iqmal**
+
 Document Similarity Analyzer - Built with ❤️ and Rust
