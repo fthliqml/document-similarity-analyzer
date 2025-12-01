@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document Similarity Analyzer - Source Code</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        background-color: #ffffff;
+        color: #000000;
+        line-height: 1.4;
+        font-size: 10pt;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 18pt;
+        margin-bottom: 10px;
+        font-family: Arial, sans-serif;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 12pt;
+        margin-bottom: 30px;
+        font-family: Arial, sans-serif;
+        color: #333;
+      }
+
+      .file-section {
+        margin-bottom: 30px;
+        page-break-inside: avoid;
+      }
+
+      .file-header {
+        background-color: #f0f0f0;
+        border: 1px solid #333;
+        border-bottom: none;
+        padding: 8px 12px;
+        font-weight: bold;
+        font-size: 11pt;
+        font-family: Arial, sans-serif;
+      }
+
+      .code-container {
+        border: 1px solid #333;
+        background-color: #ffffff;
+      }
+
+      .code-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+      }
+
+      .code-table td {
+        vertical-align: top;
+        padding: 0;
+      }
+
+      .line-numbers {
+        width: 45px;
+        min-width: 45px;
+        background-color: #f5f5f5;
+        border-right: 1px solid #ddd;
+        text-align: right;
+        padding-right: 8px;
+        color: #666;
+        user-select: none;
+        font-size: 9pt;
+      }
+
+      .line-numbers pre {
+        margin: 0;
+        padding: 8px 0;
+      }
+
+      .code-content {
+        padding-left: 20px;
+      }
+
+      .code-content pre {
+        margin: 0;
+        padding: 8px 0;
+        padding-left: 5px;
+        white-space: pre;
+        overflow-x: auto;
+      }
+
+      /* Syntax highlighting */
+      .keyword {
+        color: #0000ff;
+        font-weight: bold;
+      }
+      .type {
+        color: #267f99;
+      }
+      .string {
+        color: #a31515;
+      }
+      .comment {
+        color: #008000;
+      }
+      .macro {
+        color: #800080;
+      }
+      .function {
+        color: #795e26;
+      }
+      .number {
+        color: #098658;
+      }
+      .attribute {
+        color: #2b91af;
+      }
+
+      /* Print styles */
+      @media print {
+        body {
+          font-size: 9pt;
+        }
+
+        .file-section {
+          page-break-inside: avoid;
+        }
+
+        .file-header {
+          background-color: #f0f0f0 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .line-numbers {
+          background-color: #f5f5f5 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .code-table {
+          font-size: 8pt;
+        }
+      }
+
+      .toc {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #333;
+        background-color: #fafafa;
+        font-family: Arial, sans-serif;
+      }
+
+      .toc h2 {
+        font-size: 14pt;
+        margin-bottom: 10px;
+      }
+
+      .toc ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .toc li {
+        padding: 3px 0;
+        font-size: 10pt;
+      }
+
+      .toc a {
+        color: #000;
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        text-decoration: underline;
+      }
+
+      .section-title {
+        font-family: Arial, sans-serif;
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 30px 0 15px 0;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Document Similarity Analyzer</h1>
+      <p class="subtitle">Source Code Listing - Rust Implementation</p>
+
+      <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li><strong>Entry Points</strong></li>
+          <li>&nbsp;&nbsp;1. src/main.rs</li>
+          <li>&nbsp;&nbsp;2. src/lib.rs</li>
+          <li><strong>API Module</strong></li>
+          <li>&nbsp;&nbsp;3. src/api/mod.rs</li>
+          <li>&nbsp;&nbsp;4. src/api/server.rs</li>
+          <li>&nbsp;&nbsp;5. src/api/handlers.rs</li>
+          <li>&nbsp;&nbsp;6. src/api/error.rs</li>
+          <li><strong>Core Module</strong></li>
+          <li>&nbsp;&nbsp;7. src/core/mod.rs</li>
+          <li>&nbsp;&nbsp;8. src/core/normalize.rs</li>
+          <li>&nbsp;&nbsp;9. src/core/tokenize.rs</li>
+          <li>&nbsp;&nbsp;10. src/core/tf.rs</li>
+          <li>&nbsp;&nbsp;11. src/core/idf.rs</li>
+          <li>&nbsp;&nbsp;12. src/core/vectorize.rs</li>
+          <li>&nbsp;&nbsp;13. src/core/similarity.rs</li>
+          <li>&nbsp;&nbsp;14. src/core/matrix.rs</li>
+          <li>&nbsp;&nbsp;15. src/core/pipeline.rs</li>
+          <li><strong>Models Module</strong></li>
+          <li>&nbsp;&nbsp;16. src/models/mod.rs</li>
+          <li>&nbsp;&nbsp;17. src/models/document.rs</li>
+          <li>&nbsp;&nbsp;18. src/models/request.rs</li>
+          <li>&nbsp;&nbsp;19. src/models/response.rs</li>
+          <li><strong>Tests</strong></li>
+          <li>&nbsp;&nbsp;20. tests/integration.rs</li>
+        </ul>
+      </div>
+
+      <!-- ENTRY POINTS -->
+      <div class="section-title">Entry Points</div>
+
+      <!-- 1. src/main.rs -->
+      <div class="file-section" id="main-rs">
+        <div class="file-header">1. src/main.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Document Similarity Analyzer - Main Entry Point</span>
+<span class="comment">//!</span>
+<span class="comment">//! A backend service for analyzing document similarity using TF-IDF</span>
+<span class="comment">//! and Cosine Similarity with parallel processing.</span>
+
+<span class="keyword">use</span> tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+<span class="keyword">use</span> document_similarity_analyzer::api::run_server;
+
+<span class="attribute">#[tokio::main]</span>
+<span class="keyword">async fn</span> <span class="function">main</span>() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="comment">// Initialize tracing/logging</span>
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| <span class="string">"document_similarity_analyzer=debug,tower_http=debug"</span>.into()),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    <span class="comment">// Get port from environment or use default</span>
+    <span class="keyword">let</span> port: <span class="type">u16</span> = std::env::var(<span class="string">"PORT"</span>)
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(<span class="number">3000</span>);
+
+    <span class="comment">// Run the server</span>
+    run_server(port).<span class="keyword">await</span>
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. src/lib.rs -->
+      <div class="file-section" id="lib-rs">
+        <div class="file-header">2. src/lib.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Document Similarity Analyzer</span>
+<span class="comment">//!</span>
+<span class="comment">//! A backend service for analyzing document similarity using TF-IDF and Cosine Similarity</span>
+<span class="comment">//! with parallel processing powered by Rayon.</span>
+<span class="comment">//!</span>
+<span class="comment">//! ## Architecture</span>
+<span class="comment">//! - `api` - HTTP API handlers and server configuration</span>
+<span class="comment">//! - `core` - Pure functions for text processing and similarity computation</span>
+<span class="comment">//! - `models` - Immutable data structures</span>
+
+<span class="keyword">pub mod</span> api;
+<span class="keyword">pub mod</span> core;
+<span class="keyword">pub mod</span> models;</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- API MODULE -->
+      <div class="section-title">API Module</div>
+
+      <!-- 3. src/api/mod.rs -->
+      <div class="file-section" id="api-mod-rs">
+        <div class="file-header">3. src/api/mod.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! HTTP API module</span>
+
+<span class="keyword">mod</span> error;
+<span class="keyword">pub mod</span> handlers;
+<span class="keyword">mod</span> server;
+
+<span class="keyword">pub use</span> error::AppError;
+<span class="keyword">pub use</span> handlers::{analyze_handler, health_handler, validate_request};
+<span class="keyword">pub use</span> server::{create_router, run_server};</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. src/api/server.rs -->
+      <div class="file-section" id="api-server-rs">
+        <div class="file-header">4. src/api/server.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! HTTP server configuration</span>
+
+<span class="keyword">use</span> axum::{
+    routing::{get, post},
+    Router,
+};
+<span class="keyword">use</span> std::net::SocketAddr;
+<span class="keyword">use</span> tower_http::cors::{Any, CorsLayer};
+<span class="keyword">use</span> tracing::info;
+
+<span class="keyword">use super</span>::handlers::{analyze_handler, health_handler};
+
+<span class="comment">/// Creates the Axum router with all routes configured</span>
+<span class="keyword">pub fn</span> <span class="function">create_router</span>() -&gt; Router {
+    <span class="comment">// Configure CORS</span>
+    <span class="keyword">let</span> cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
+    Router::new()
+        .route(<span class="string">"/health"</span>, get(health_handler))
+        .route(<span class="string">"/analyze"</span>, post(analyze_handler))
+        .layer(cors)
+}
+
+<span class="comment">/// Runs the HTTP server</span>
+<span class="keyword">pub async fn</span> <span class="function">run_server</span>(port: <span class="type">u16</span>) -&gt; anyhow::Result&lt;()&gt; {
+    <span class="keyword">let</span> app = create_router();
+    <span class="keyword">let</span> addr = SocketAddr::from(([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>], port));
+
+    info!(<span class="string">"🚀 Server starting on http://{}"</span>, addr);
+    info!(<span class="string">"📊 POST /analyze - Analyze document similarity"</span>);
+    info!(<span class="string">"❤️  GET /health  - Health check"</span>);
+
+    <span class="keyword">let</span> listener = tokio::net::TcpListener::bind(addr).<span class="keyword">await</span>?;
+    axum::serve(listener, app).<span class="keyword">await</span>?;
+
+    Ok(())
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 5. src/api/handlers.rs -->
+      <div class="file-section" id="api-handlers-rs">
+        <div class="file-header">5. src/api/handlers.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! API request handlers</span>
+
+<span class="keyword">use</span> axum::Json;
+
+<span class="keyword">use</span> <span class="keyword">crate</span>::core::analyze_documents;
+<span class="keyword">use</span> <span class="keyword">crate</span>::models::{AnalyzeRequest, AnalyzeResponse};
+<span class="keyword">use super</span>::AppError;
+
+<span class="comment">/// Maximum number of documents allowed per request</span>
+<span class="keyword">const</span> MAX_DOCUMENTS: <span class="type">usize</span> = <span class="number">100</span>;
+
+<span class="comment">/// Minimum number of documents required for comparison</span>
+<span class="keyword">const</span> MIN_DOCUMENTS: <span class="type">usize</span> = <span class="number">2</span>;
+
+<span class="comment">/// Maximum length of a single document in characters</span>
+<span class="keyword">const</span> MAX_DOCUMENT_LENGTH: <span class="type">usize</span> = <span class="number">50_000</span>;
+
+<span class="comment">/// Handler for POST /analyze endpoint</span>
+<span class="comment">///</span>
+<span class="comment">/// Receives documents and returns their similarity matrix.</span>
+<span class="keyword">pub async fn</span> <span class="function">analyze_handler</span>(
+    Json(payload): Json&lt;AnalyzeRequest&gt;,
+) -&gt; Result&lt;Json&lt;AnalyzeResponse&gt;, AppError&gt; {
+    <span class="comment">// Validate input</span>
+    validate_request(&amp;payload)?;
+
+    <span class="comment">// Process documents through the pipeline</span>
+    <span class="keyword">let</span> result = analyze_documents(&amp;payload.documents);
+
+    <span class="comment">// Convert to response format</span>
+    Ok(Json(AnalyzeResponse::from(result)))
+}
+
+<span class="comment">/// Validates the analyze request</span>
+<span class="keyword">pub fn</span> <span class="function">validate_request</span>(request: &amp;AnalyzeRequest) -&gt; Result&lt;(), AppError&gt; {
+    <span class="comment">// Check if documents array is empty</span>
+    <span class="keyword">if</span> request.documents.is_empty() {
+        <span class="keyword">return</span> Err(AppError::NoDocuments);
+    }
+
+    <span class="comment">// Check minimum documents</span>
+    <span class="keyword">if</span> request.documents.len() &lt; MIN_DOCUMENTS {
+        <span class="keyword">return</span> Err(AppError::NotEnoughDocuments(request.documents.len()));
+    }
+
+    <span class="comment">// Check maximum documents</span>
+    <span class="keyword">if</span> request.documents.len() &gt; MAX_DOCUMENTS {
+        <span class="keyword">return</span> Err(AppError::TooManyDocuments(request.documents.len()));
+    }
+
+    <span class="comment">// Check each document</span>
+    <span class="keyword">for</span> (i, doc) <span class="keyword">in</span> request.documents.iter().enumerate() {
+        <span class="keyword">if</span> doc.trim().is_empty() {
+            <span class="keyword">return</span> Err(AppError::EmptyDocument(i));
+        }
+        <span class="keyword">if</span> doc.len() &gt; MAX_DOCUMENT_LENGTH {
+            <span class="keyword">return</span> Err(AppError::DocumentTooLong(i, MAX_DOCUMENT_LENGTH));
+        }
+    }
+
+    Ok(())
+}
+
+<span class="comment">/// Handler for GET /health endpoint</span>
+<span class="keyword">pub async fn</span> <span class="function">health_handler</span>() -&gt; &amp;<span class="lifetime">'static</span> <span class="type">str</span> {
+    <span class="string">"OK"</span>
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 6. src/api/error.rs -->
+      <div class="file-section" id="api-error-rs">
+        <div class="file-header">6. src/api/error.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Application error types</span>
+
+<span class="keyword">use</span> axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
+<span class="keyword">use</span> serde::Serialize;
+<span class="keyword">use</span> thiserror::Error;
+
+<span class="comment">/// Application error types</span>
+<span class="attribute">#[derive(Debug, Error)]</span>
+<span class="keyword">pub enum</span> <span class="type">AppError</span> {
+    <span class="attribute">#[error("Too many documents: {0}, maximum allowed is 100")]</span>
+    TooManyDocuments(<span class="type">usize</span>),
+
+    <span class="attribute">#[error("Empty document at index {0}")]</span>
+    EmptyDocument(<span class="type">usize</span>),
+
+    <span class="attribute">#[error("No documents provided")]</span>
+    NoDocuments,
+
+    <span class="attribute">#[error("Not enough documents: minimum 2 required for comparison, got {0}")]</span>
+    NotEnoughDocuments(<span class="type">usize</span>),
+
+    <span class="attribute">#[error("Document at index {0} exceeds maximum length of {1} characters")]</span>
+    DocumentTooLong(<span class="type">usize</span>, <span class="type">usize</span>),
+
+    <span class="attribute">#[error("Internal server error: {0}")]</span>
+    Internal(<span class="attribute">#[from]</span> anyhow::Error),
+}
+
+<span class="comment">/// Error response body</span>
+<span class="attribute">#[derive(Debug, Serialize)]</span>
+<span class="keyword">struct</span> <span class="type">ErrorResponse</span> {
+    error: <span class="type">String</span>,
+    code: <span class="type">String</span>,
+}
+
+<span class="keyword">impl</span> IntoResponse <span class="keyword">for</span> <span class="type">AppError</span> {
+    <span class="keyword">fn</span> <span class="function">into_response</span>(<span class="keyword">self</span>) -&gt; Response {
+        <span class="keyword">let</span> (status, code) = <span class="keyword">match</span> &amp;<span class="keyword">self</span> {
+            AppError::TooManyDocuments(_) =&gt; (StatusCode::BAD_REQUEST, <span class="string">"TOO_MANY_DOCUMENTS"</span>),
+            AppError::EmptyDocument(_) =&gt; (StatusCode::BAD_REQUEST, <span class="string">"EMPTY_DOCUMENT"</span>),
+            AppError::NoDocuments =&gt; (StatusCode::BAD_REQUEST, <span class="string">"NO_DOCUMENTS"</span>),
+            AppError::NotEnoughDocuments(_) =&gt; (StatusCode::BAD_REQUEST, <span class="string">"NOT_ENOUGH_DOCUMENTS"</span>),
+            AppError::DocumentTooLong(_, _) =&gt; (StatusCode::BAD_REQUEST, <span class="string">"DOCUMENT_TOO_LONG"</span>),
+            AppError::Internal(_) =&gt; (StatusCode::INTERNAL_SERVER_ERROR, <span class="string">"INTERNAL_ERROR"</span>),
+        };
+
+        <span class="keyword">let</span> body = ErrorResponse {
+            error: <span class="keyword">self</span>.to_string(),
+            code: code.to_string(),
+        };
+
+        (status, Json(body)).into_response()
+    }
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CORE MODULE -->
+      <div class="section-title">Core Module</div>
+
+      <!-- 7. src/core/mod.rs -->
+      <div class="file-section" id="core-mod-rs">
+        <div class="file-header">7. src/core/mod.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Core processing functions - all pure functions with no side effects</span>
+
+<span class="keyword">mod</span> normalize;
+<span class="keyword">mod</span> tokenize;
+<span class="keyword">mod</span> tf;
+<span class="keyword">mod</span> idf;
+<span class="keyword">mod</span> vectorize;
+<span class="keyword">mod</span> similarity;
+<span class="keyword">mod</span> matrix;
+<span class="keyword">mod</span> pipeline;
+
+<span class="keyword">pub use</span> normalize::normalize_text;
+<span class="keyword">pub use</span> tokenize::tokenize;
+<span class="keyword">pub use</span> tf::compute_tf;
+<span class="keyword">pub use</span> idf::compute_idf;
+<span class="keyword">pub use</span> vectorize::vectorize;
+<span class="keyword">pub use</span> similarity::cosine_similarity;
+<span class="keyword">pub use</span> matrix::compute_similarity_matrix;
+<span class="keyword">pub use</span> pipeline::analyze_documents;</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 8. src/core/normalize.rs -->
+      <div class="file-section" id="core-normalize-rs">
+        <div class="file-header">8. src/core/normalize.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Text normalization - pure function</span>
+
+<span class="comment">/// Normalizes text by converting to lowercase, removing punctuation,</span>
+<span class="comment">/// and collapsing multiple whitespace into single space.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `text` - The input text to normalize</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A new String with normalized text</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::normalize_text;</span>
+<span class="comment">///</span>
+<span class="comment">/// let result = normalize_text("Hello, World!");</span>
+<span class="comment">/// assert_eq!(result, "hello world");</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">normalize_text</span>(text: &amp;<span class="type">str</span>) -&gt; <span class="type">String</span> {
+    text.chars()
+        .map(|c| {
+            <span class="keyword">if</span> c.is_ascii_punctuation() {
+                <span class="string">' '</span>
+            } <span class="keyword">else</span> {
+                c.to_ascii_lowercase()
+            }
+        })
+        .collect::&lt;<span class="type">String</span>&gt;()
+        .split_whitespace()
+        .collect::&lt;Vec&lt;&amp;<span class="type">str</span>&gt;&gt;()
+        .join(<span class="string">" "</span>)
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 9. src/core/tokenize.rs -->
+      <div class="file-section" id="core-tokenize-rs">
+        <div class="file-header">9. src/core/tokenize.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Tokenization - pure function</span>
+
+<span class="comment">/// Tokenizes text into a vector of words by splitting on whitespace.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `text` - The input text to tokenize (should be pre-normalized)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A Vec&lt;String&gt; containing individual tokens</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::tokenize;</span>
+<span class="comment">///</span>
+<span class="comment">/// let tokens = tokenize("hello world");</span>
+<span class="comment">/// assert_eq!(tokens, vec!["hello", "world"]);</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">tokenize</span>(text: &amp;<span class="type">str</span>) -&gt; Vec&lt;<span class="type">String</span>&gt; {
+    text.split_whitespace()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+        .collect()
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 10. src/core/tf.rs -->
+      <div class="file-section" id="core-tf-rs">
+        <div class="file-header">10. src/core/tf.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Term Frequency calculation - pure function</span>
+
+<span class="keyword">use</span> std::collections::HashMap;
+
+<span class="comment">/// Computes Term Frequency (TF) for a list of tokens.</span>
+<span class="comment">/// TF = (number of times term appears) / (total number of terms)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `tokens` - Slice of tokens from a document</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A HashMap mapping each term to its frequency (0.0 to 1.0)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::compute_tf;</span>
+<span class="comment">///</span>
+<span class="comment">/// let tokens = vec!["a".to_string(), "b".to_string(), "a".to_string()];</span>
+<span class="comment">/// let tf = compute_tf(&amp;tokens);</span>
+<span class="comment">/// assert!((tf["a"] - 0.667).abs() &lt; 0.01);</span>
+<span class="comment">/// assert!((tf["b"] - 0.333).abs() &lt; 0.01);</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">compute_tf</span>(tokens: &amp;[<span class="type">String</span>]) -&gt; HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt; {
+    <span class="keyword">if</span> tokens.is_empty() {
+        <span class="keyword">return</span> HashMap::new();
+    }
+
+    <span class="keyword">let</span> total = tokens.len() <span class="keyword">as</span> <span class="type">f32</span>;
+    <span class="keyword">let</span> <span class="keyword">mut</span> counts: HashMap&lt;<span class="type">String</span>, <span class="type">usize</span>&gt; = HashMap::new();
+
+    <span class="keyword">for</span> token <span class="keyword">in</span> tokens {
+        *counts.entry(token.clone()).or_insert(<span class="number">0</span>) += <span class="number">1</span>;
+    }
+
+    counts
+        .into_iter()
+        .map(|(term, count)| (term, count <span class="keyword">as</span> <span class="type">f32</span> / total))
+        .collect()
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 11. src/core/idf.rs -->
+      <div class="file-section" id="core-idf-rs">
+        <div class="file-header">11. src/core/idf.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Inverse Document Frequency calculation - pure function</span>
+
+<span class="keyword">use</span> std::collections::{HashMap, HashSet};
+
+<span class="comment">/// Computes Inverse Document Frequency (IDF) across all documents.</span>
+<span class="comment">/// Uses smoothed IDF: IDF = log((N + 1) / (df + 1)) + 1</span>
+<span class="comment">/// This prevents division by zero and ensures non-zero IDF values.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `tfs` - Slice of Term Frequency maps, one per document</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A HashMap mapping each term to its IDF value</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::compute_idf;</span>
+<span class="comment">/// use std::collections::HashMap;</span>
+<span class="comment">///</span>
+<span class="comment">/// let tf1: HashMap&lt;String, f32&gt; = [("hello".to_string(), 0.5)].into_iter().collect();</span>
+<span class="comment">/// let tf2: HashMap&lt;String, f32&gt; = [("world".to_string(), 0.5)].into_iter().collect();</span>
+<span class="comment">/// let idf = compute_idf(&amp;[tf1, tf2]);</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">compute_idf</span>(tfs: &amp;[HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt;]) -&gt; HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt; {
+    <span class="keyword">if</span> tfs.is_empty() {
+        <span class="keyword">return</span> HashMap::new();
+    }
+
+    <span class="keyword">let</span> n = tfs.len() <span class="keyword">as</span> <span class="type">f32</span>;
+    <span class="keyword">let</span> <span class="keyword">mut</span> document_frequency: HashMap&lt;<span class="type">String</span>, <span class="type">usize</span>&gt; = HashMap::new();
+
+    <span class="comment">// Count in how many documents each term appears</span>
+    <span class="keyword">for</span> tf <span class="keyword">in</span> tfs {
+        <span class="keyword">let</span> terms: HashSet&lt;&amp;<span class="type">String</span>&gt; = tf.keys().collect();
+        <span class="keyword">for</span> term <span class="keyword">in</span> terms {
+            *document_frequency.entry(term.clone()).or_insert(<span class="number">0</span>) += <span class="number">1</span>;
+        }
+    }
+
+    <span class="comment">// Calculate smoothed IDF: log((N + 1) / (df + 1)) + 1</span>
+    document_frequency
+        .into_iter()
+        .map(|(term, df)| {
+            <span class="keyword">let</span> idf = ((n + <span class="number">1.0</span>) / (df <span class="keyword">as</span> <span class="type">f32</span> + <span class="number">1.0</span>)).ln() + <span class="number">1.0</span>;
+            (term, idf)
+        })
+        .collect()
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 12. src/core/vectorize.rs -->
+      <div class="file-section" id="core-vectorize-rs">
+        <div class="file-header">12. src/core/vectorize.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! TF-IDF Vectorization - pure function</span>
+
+<span class="keyword">use</span> std::collections::HashMap;
+
+<span class="comment">/// Converts TF and IDF into a TF-IDF vector based on vocabulary order.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `tf` - Term Frequency map for a document</span>
+<span class="comment">/// * `idf` - Inverse Document Frequency map (global)</span>
+<span class="comment">/// * `vocabulary` - Ordered list of all terms (defines vector dimensions)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A Vec&lt;f32&gt; representing the document's TF-IDF vector</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::vectorize;</span>
+<span class="comment">/// use std::collections::HashMap;</span>
+<span class="comment">///</span>
+<span class="comment">/// let tf: HashMap&lt;String, f32&gt; = [("hello".to_string(), 0.5)].into_iter().collect();</span>
+<span class="comment">/// let idf: HashMap&lt;String, f32&gt; = [("hello".to_string(), 0.693)].into_iter().collect();</span>
+<span class="comment">/// let vocab = vec!["hello".to_string()];</span>
+<span class="comment">/// let vector = vectorize(&amp;tf, &amp;idf, &amp;vocab);</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">vectorize</span>(
+    tf: &amp;HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt;,
+    idf: &amp;HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt;,
+    vocabulary: &amp;[<span class="type">String</span>],
+) -&gt; Vec&lt;<span class="type">f32</span>&gt; {
+    vocabulary
+        .iter()
+        .map(|term| {
+            <span class="keyword">let</span> tf_value = tf.get(term).copied().unwrap_or(<span class="number">0.0</span>);
+            <span class="keyword">let</span> idf_value = idf.get(term).copied().unwrap_or(<span class="number">0.0</span>);
+            tf_value * idf_value
+        })
+        .collect()
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 13. src/core/similarity.rs -->
+      <div class="file-section" id="core-similarity-rs">
+        <div class="file-header">13. src/core/similarity.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Cosine Similarity calculation - pure function</span>
+
+<span class="comment">/// Computes cosine similarity between two vectors.</span>
+<span class="comment">/// Formula: (A · B) / (||A|| * ||B||)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `vec_a` - First vector</span>
+<span class="comment">/// * `vec_b` - Second vector</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// Cosine similarity value between -1.0 and 1.0</span>
+<span class="comment">/// Returns 0.0 if either vector has zero magnitude</span>
+<span class="comment">///</span>
+<span class="comment">/// # Example</span>
+<span class="comment">/// ```</span>
+<span class="comment">/// use document_similarity_analyzer::core::cosine_similarity;</span>
+<span class="comment">///</span>
+<span class="comment">/// let a = vec![1.0, 0.0];</span>
+<span class="comment">/// let b = vec![1.0, 0.0];</span>
+<span class="comment">/// assert_eq!(cosine_similarity(&amp;a, &amp;b), 1.0);</span>
+<span class="comment">/// ```</span>
+<span class="keyword">pub fn</span> <span class="function">cosine_similarity</span>(vec_a: &amp;[<span class="type">f32</span>], vec_b: &amp;[<span class="type">f32</span>]) -&gt; <span class="type">f32</span> {
+    <span class="keyword">if</span> vec_a.len() != vec_b.len() || vec_a.is_empty() {
+        <span class="keyword">return</span> <span class="number">0.0</span>;
+    }
+
+    <span class="comment">// Compute dot product: A · B</span>
+    <span class="keyword">let</span> dot_product: <span class="type">f32</span> = vec_a
+        .iter()
+        .zip(vec_b.iter())
+        .map(|(a, b)| a * b)
+        .sum();
+
+    <span class="comment">// Compute magnitudes: ||A|| and ||B||</span>
+    <span class="keyword">let</span> magnitude_a: <span class="type">f32</span> = vec_a.iter().map(|x| x * x).sum::&lt;<span class="type">f32</span>&gt;().sqrt();
+    <span class="keyword">let</span> magnitude_b: <span class="type">f32</span> = vec_b.iter().map(|x| x * x).sum::&lt;<span class="type">f32</span>&gt;().sqrt();
+
+    <span class="comment">// Handle zero magnitude case</span>
+    <span class="keyword">if</span> magnitude_a == <span class="number">0.0</span> || magnitude_b == <span class="number">0.0</span> {
+        <span class="keyword">return</span> <span class="number">0.0</span>;
+    }
+
+    dot_product / (magnitude_a * magnitude_b)
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 14. src/core/matrix.rs -->
+      <div class="file-section" id="core-matrix-rs">
+        <div class="file-header">14. src/core/matrix.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Similarity Matrix generation - parallel computation</span>
+
+<span class="keyword">use</span> rayon::prelude::*;
+<span class="keyword">use super</span>::cosine_similarity;
+
+<span class="comment">/// Computes a full NxN similarity matrix from TF-IDF vectors.</span>
+<span class="comment">/// Utilizes parallel processing for efficiency.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `vectors` - Slice of TF-IDF vectors, one per document</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// NxN matrix where matrix[i][j] = cosine_similarity(vectors[i], vectors[j])</span>
+<span class="comment">///</span>
+<span class="comment">/// # Properties</span>
+<span class="comment">/// - Diagonal is always 1.0 (document is identical to itself)</span>
+<span class="comment">/// - Matrix is symmetric: matrix[i][j] == matrix[j][i]</span>
+<span class="keyword">pub fn</span> <span class="function">compute_similarity_matrix</span>(vectors: &amp;[Vec&lt;<span class="type">f32</span>&gt;]) -&gt; Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt; {
+    <span class="keyword">let</span> n = vectors.len();
+    
+    <span class="keyword">if</span> n == <span class="number">0</span> {
+        <span class="keyword">return</span> <span class="keyword">vec!</span>[];
+    }
+
+    <span class="comment">// Parallel computation of similarity matrix</span>
+    (<span class="number">0</span>..n)
+        .into_par_iter()
+        .map(|i| {
+            (<span class="number">0</span>..n)
+                .map(|j| {
+                    <span class="keyword">if</span> i == j {
+                        <span class="number">1.0</span> <span class="comment">// Diagonal is always 1.0</span>
+                    } <span class="keyword">else if</span> i &lt; j {
+                        <span class="comment">// Compute similarity for upper triangle</span>
+                        cosine_similarity(&amp;vectors[i], &amp;vectors[j])
+                    } <span class="keyword">else</span> {
+                        <span class="comment">// For lower triangle, compute it too</span>
+                        cosine_similarity(&amp;vectors[i], &amp;vectors[j])
+                    }
+                })
+                .collect()
+        })
+        .collect()
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 15. src/core/pipeline.rs -->
+      <div class="file-section" id="core-pipeline-rs">
+        <div class="file-header">15. src/core/pipeline.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Document analysis pipeline - parallel processing orchestration</span>
+
+<span class="keyword">use</span> rayon::prelude::*;
+<span class="keyword">use</span> std::sync::Arc;
+
+<span class="keyword">use</span> <span class="keyword">crate</span>::models::SimilarityMatrix;
+<span class="keyword">use super</span>::{
+    normalize_text, 
+    tokenize, 
+    compute_tf, 
+    compute_idf, 
+    vectorize, 
+    compute_similarity_matrix
+};
+
+<span class="comment">/// Analyzes multiple documents and computes their similarity matrix.</span>
+<span class="comment">/// Uses parallel processing for all possible stages.</span>
+<span class="comment">///</span>
+<span class="comment">/// # Pipeline</span>
+<span class="comment">/// 1. Normalize all documents (parallel)</span>
+<span class="comment">/// 2. Tokenize all documents (parallel)</span>
+<span class="comment">/// 3. Compute TF for each document (parallel)</span>
+<span class="comment">/// 4. Compute IDF globally (single-threaded, needs all TFs)</span>
+<span class="comment">/// 5. Build vocabulary from IDF</span>
+<span class="comment">/// 6. Vectorize each document (parallel)</span>
+<span class="comment">/// 7. Compute similarity matrix (parallel)</span>
+<span class="comment">///</span>
+<span class="comment">/// # Arguments</span>
+<span class="comment">/// * `documents` - Slice of document strings to analyze</span>
+<span class="comment">///</span>
+<span class="comment">/// # Returns</span>
+<span class="comment">/// A SimilarityMatrix containing the NxN similarity values and document labels</span>
+<span class="keyword">pub fn</span> <span class="function">analyze_documents</span>(documents: &amp;[<span class="type">String</span>]) -&gt; SimilarityMatrix {
+    <span class="keyword">if</span> documents.is_empty() {
+        <span class="keyword">return</span> SimilarityMatrix::new(<span class="keyword">vec!</span>[], <span class="keyword">vec!</span>[]);
+    }
+
+    <span class="comment">// Generate document labels</span>
+    <span class="keyword">let</span> labels: Vec&lt;<span class="type">String</span>&gt; = (<span class="number">0</span>..documents.len())
+        .map(|i| <span class="macro">format!</span>(<span class="string">"doc{}"</span>, i))
+        .collect();
+
+    <span class="comment">// Stage 1: Normalize (parallel)</span>
+    <span class="keyword">let</span> normalized: Vec&lt;<span class="type">String</span>&gt; = documents
+        .par_iter()
+        .map(|doc| normalize_text(doc))
+        .collect();
+
+    <span class="comment">// Stage 2: Tokenize (parallel)</span>
+    <span class="keyword">let</span> tokenized: Vec&lt;Vec&lt;<span class="type">String</span>&gt;&gt; = normalized
+        .par_iter()
+        .map(|doc| tokenize(doc))
+        .collect();
+
+    <span class="comment">// Stage 3: Compute TF for each document (parallel)</span>
+    <span class="keyword">let</span> tfs: Vec&lt;_&gt; = tokenized
+        .par_iter()
+        .map(|tokens| compute_tf(tokens))
+        .collect();
+
+    <span class="comment">// Stage 4: Compute IDF (single-threaded, needs all TFs)</span>
+    <span class="keyword">let</span> idf = compute_idf(&amp;tfs);
+
+    <span class="comment">// Stage 5: Build vocabulary (sorted for consistency)</span>
+    <span class="keyword">let</span> <span class="keyword">mut</span> vocabulary: Vec&lt;<span class="type">String</span>&gt; = idf.keys().cloned().collect();
+    vocabulary.sort();
+
+    <span class="comment">// Share vocabulary and IDF across threads</span>
+    <span class="keyword">let</span> vocab_arc = Arc::new(vocabulary);
+    <span class="keyword">let</span> idf_arc = Arc::new(idf);
+
+    <span class="comment">// Stage 6: Vectorize each document (parallel)</span>
+    <span class="keyword">let</span> vectors: Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt; = tfs
+        .par_iter()
+        .map(|tf| vectorize(tf, &amp;idf_arc, &amp;vocab_arc))
+        .collect();
+
+    <span class="comment">// Stage 7: Compute similarity matrix (parallel)</span>
+    <span class="keyword">let</span> matrix = compute_similarity_matrix(&amp;vectors);
+
+    SimilarityMatrix::new(matrix, labels)
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- MODELS MODULE -->
+      <div class="section-title">Models Module</div>
+
+      <!-- 16. src/models/mod.rs -->
+      <div class="file-section" id="models-mod-rs">
+        <div class="file-header">16. src/models/mod.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Immutable data models for document similarity analysis</span>
+
+<span class="keyword">mod</span> document;
+<span class="keyword">mod</span> request;
+<span class="keyword">mod</span> response;
+
+<span class="keyword">pub use</span> document::*;
+<span class="keyword">pub use</span> request::*;
+<span class="keyword">pub use</span> response::*;</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 17. src/models/document.rs -->
+      <div class="file-section" id="models-document-rs">
+        <div class="file-header">17. src/models/document.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Document and processing data structures</span>
+
+<span class="keyword">use</span> serde::{Deserialize, Serialize};
+<span class="keyword">use</span> std::collections::HashMap;
+
+<span class="comment">/// Represents a raw document with its ID</span>
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]</span>
+<span class="keyword">pub struct</span> <span class="type">Document</span> {
+    <span class="keyword">pub</span> id: <span class="type">String</span>,
+    <span class="keyword">pub</span> content: <span class="type">String</span>,
+}
+
+<span class="keyword">impl</span> <span class="type">Document</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(id: <span class="keyword">impl</span> Into&lt;<span class="type">String</span>&gt;, content: <span class="keyword">impl</span> Into&lt;<span class="type">String</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> {
+            id: id.into(),
+            content: content.into(),
+        }
+    }
+}
+
+<span class="comment">/// Represents a tokenized document</span>
+<span class="attribute">#[derive(Debug, Clone)]</span>
+<span class="keyword">pub struct</span> <span class="type">TokenizedDoc</span> {
+    <span class="keyword">pub</span> id: <span class="type">String</span>,
+    <span class="keyword">pub</span> tokens: Vec&lt;<span class="type">String</span>&gt;,
+}
+
+<span class="keyword">impl</span> <span class="type">TokenizedDoc</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(id: <span class="keyword">impl</span> Into&lt;<span class="type">String</span>&gt;, tokens: Vec&lt;<span class="type">String</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> {
+            id: id.into(),
+            tokens,
+        }
+    }
+}
+
+<span class="comment">/// Term Frequency map for a single document</span>
+<span class="keyword">pub type</span> TermFrequency = HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt;;
+
+<span class="comment">/// Inverse Document Frequency map across all documents</span>
+<span class="keyword">pub type</span> InverseDocumentFrequency = HashMap&lt;<span class="type">String</span>, <span class="type">f32</span>&gt;;
+
+<span class="comment">/// TF-IDF Vector representation of a document</span>
+<span class="attribute">#[derive(Debug, Clone)]</span>
+<span class="keyword">pub struct</span> <span class="type">TfIdfVector</span> {
+    <span class="keyword">pub</span> id: <span class="type">String</span>,
+    <span class="keyword">pub</span> vector: Vec&lt;<span class="type">f32</span>&gt;,
+}
+
+<span class="keyword">impl</span> <span class="type">TfIdfVector</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(id: <span class="keyword">impl</span> Into&lt;<span class="type">String</span>&gt;, vector: Vec&lt;<span class="type">f32</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> {
+            id: id.into(),
+            vector,
+        }
+    }
+}
+
+<span class="comment">/// Similarity matrix result</span>
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]</span>
+<span class="keyword">pub struct</span> <span class="type">SimilarityMatrix</span> {
+    <span class="comment">/// NxN similarity matrix where matrix[i][j] is similarity between doc i and doc j</span>
+    <span class="keyword">pub</span> matrix: Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt;,
+    <span class="comment">/// Document indices/labels</span>
+    <span class="keyword">pub</span> index: Vec&lt;<span class="type">String</span>&gt;,
+}
+
+<span class="keyword">impl</span> <span class="type">SimilarityMatrix</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(matrix: Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt;, index: Vec&lt;<span class="type">String</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> { matrix, index }
+    }
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 18. src/models/request.rs -->
+      <div class="file-section" id="models-request-rs">
+        <div class="file-header">18. src/models/request.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! API request models</span>
+
+<span class="keyword">use</span> serde::{Deserialize, Serialize};
+
+<span class="comment">/// Request payload for document analysis</span>
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]</span>
+<span class="keyword">pub struct</span> <span class="type">AnalyzeRequest</span> {
+    <span class="comment">/// List of document texts to analyze</span>
+    <span class="keyword">pub</span> documents: Vec&lt;<span class="type">String</span>&gt;,
+}
+
+<span class="keyword">impl</span> <span class="type">AnalyzeRequest</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(documents: Vec&lt;<span class="type">String</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> { documents }
+    }
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 19. src/models/response.rs -->
+      <div class="file-section" id="models-response-rs">
+        <div class="file-header">19. src/models/response.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! API response models</span>
+
+<span class="keyword">use</span> serde::{Deserialize, Serialize};
+
+<span class="comment">/// Response payload for document analysis</span>
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]</span>
+<span class="keyword">pub struct</span> <span class="type">AnalyzeResponse</span> {
+    <span class="comment">/// NxN similarity matrix</span>
+    <span class="keyword">pub</span> similarity_matrix: Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt;,
+    <span class="comment">/// Document indices/labels</span>
+    <span class="keyword">pub</span> index: Vec&lt;<span class="type">String</span>&gt;,
+}
+
+<span class="keyword">impl</span> <span class="type">AnalyzeResponse</span> {
+    <span class="keyword">pub fn</span> <span class="function">new</span>(similarity_matrix: Vec&lt;Vec&lt;<span class="type">f32</span>&gt;&gt;, index: Vec&lt;<span class="type">String</span>&gt;) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> {
+            similarity_matrix,
+            index,
+        }
+    }
+}
+
+<span class="keyword">impl</span> From&lt;<span class="keyword">crate</span>::models::SimilarityMatrix&gt; <span class="keyword">for</span> <span class="type">AnalyzeResponse</span> {
+    <span class="keyword">fn</span> <span class="function">from</span>(matrix: <span class="keyword">crate</span>::models::SimilarityMatrix) -&gt; <span class="type">Self</span> {
+        <span class="type">Self</span> {
+            similarity_matrix: matrix.matrix,
+            index: matrix.index,
+        }
+    }
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- TESTS -->
+      <div class="section-title">Tests</div>
+
+      <!-- 20. tests/integration.rs -->
+      <div class="file-section" id="tests-integration-rs">
+        <div class="file-header">20. tests/integration.rs</div>
+        <div class="code-container">
+          <table class="code-table">
+            <tr>
+              <td class="line-numbers">
+                <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</pre
+                >
+              </td>
+              <td class="code-content">
+                <pre><span class="comment">//! Integration tests for Document Similarity Analyzer</span>
+<span class="comment">//!</span>
+<span class="comment">//! These tests verify the full pipeline and API endpoints work correctly.</span>
+
+<span class="keyword">use</span> document_similarity_analyzer::core::analyze_documents;
+<span class="keyword">use</span> document_similarity_analyzer::models::AnalyzeRequest;
+<span class="keyword">use</span> document_similarity_analyzer::api::validate_request;
+
+<span class="comment">/// Test full pipeline with known documents</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_pipeline_with_known_documents</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"The quick brown fox jumps over the lazy dog"</span>.to_string(),
+        <span class="string">"A quick brown dog outpaces a lazy fox"</span>.to_string(),
+        <span class="string">"Hello world this is a test"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="comment">// Verify matrix dimensions</span>
+    <span class="macro">assert_eq!</span>(result.matrix.len(), <span class="number">3</span>);
+    <span class="macro">assert_eq!</span>(result.matrix[<span class="number">0</span>].len(), <span class="number">3</span>);
+
+    <span class="comment">// Verify diagonal is 1.0</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..<span class="number">3</span> {
+        <span class="macro">assert!</span>(
+            (result.matrix[i][i] - <span class="number">1.0</span>).abs() &lt; <span class="number">0.001</span>,
+            <span class="string">"Diagonal element [{i}][{i}] should be 1.0"</span>
+        );
+    }
+
+    <span class="comment">// Verify symmetry</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..<span class="number">3</span> {
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="number">0</span>..<span class="number">3</span> {
+            <span class="macro">assert!</span>(
+                (result.matrix[i][j] - result.matrix[j][i]).abs() &lt; <span class="number">0.001</span>,
+                <span class="string">"Matrix should be symmetric at [{i}][{j}]"</span>
+            );
+        }
+    }
+
+    <span class="comment">// First two documents should have higher similarity than with the third</span>
+    <span class="keyword">let</span> sim_0_1 = result.matrix[<span class="number">0</span>][<span class="number">1</span>];
+    <span class="keyword">let</span> sim_0_2 = result.matrix[<span class="number">0</span>][<span class="number">2</span>];
+    <span class="keyword">let</span> sim_1_2 = result.matrix[<span class="number">1</span>][<span class="number">2</span>];
+
+    <span class="macro">assert!</span>(sim_0_1 &gt; sim_0_2, <span class="string">"Documents 0 and 1 should be more similar than 0 and 2"</span>);
+    <span class="macro">assert!</span>(sim_0_1 &gt; sim_1_2, <span class="string">"Documents 0 and 1 should be more similar than 1 and 2"</span>);
+}
+
+<span class="comment">/// Test deterministic output - same input should give same output</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_deterministic_output</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"machine learning is fascinating"</span>.to_string(),
+        <span class="string">"deep learning neural networks"</span>.to_string(),
+        <span class="string">"natural language processing"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result1 = analyze_documents(&amp;documents);
+    <span class="keyword">let</span> result2 = analyze_documents(&amp;documents);
+
+    <span class="macro">assert_eq!</span>(result1.matrix.len(), result2.matrix.len());
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..result1.matrix.len() {
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="number">0</span>..result1.matrix[i].len() {
+            <span class="macro">assert!</span>(
+                (result1.matrix[i][j] - result2.matrix[i][j]).abs() &lt; <span class="number">0.0001</span>,
+                <span class="string">"Results should be deterministic at [{i}][{j}]"</span>
+            );
+        }
+    }
+}
+
+<span class="comment">/// Test with identical documents</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_identical_documents</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"hello world"</span>.to_string(),
+        <span class="string">"hello world"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..<span class="number">2</span> {
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="number">0</span>..<span class="number">2</span> {
+            <span class="macro">assert!</span>(
+                (result.matrix[i][j] - <span class="number">1.0</span>).abs() &lt; <span class="number">0.001</span>,
+                <span class="string">"Identical documents should have similarity 1.0"</span>
+            );
+        }
+    }
+}
+
+<span class="comment">/// Test with completely different documents</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_completely_different_documents</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"apple banana cherry"</span>.to_string(),
+        <span class="string">"xyz uvw rst"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="macro">assert!</span>(
+        result.matrix[<span class="number">0</span>][<span class="number">1</span>].abs() &lt; <span class="number">0.001</span>,
+        <span class="string">"Documents with no common terms should have ~0 similarity"</span>
+    );
+}
+
+<span class="comment">/// Test with many documents for parallel processing</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_many_documents_parallel</span>() {
+    <span class="keyword">let</span> documents: Vec&lt;<span class="type">String</span>&gt; = (<span class="number">0</span>..<span class="number">50</span>)
+        .map(|i| <span class="macro">format!</span>(<span class="string">"document number {} with some content here"</span>, i))
+        .collect();
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="macro">assert_eq!</span>(result.matrix.len(), <span class="number">50</span>);
+    <span class="macro">assert_eq!</span>(result.matrix[<span class="number">0</span>].len(), <span class="number">50</span>);
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..<span class="number">50</span> {
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="number">0</span>..<span class="number">50</span> {
+            <span class="keyword">let</span> sim = result.matrix[i][j];
+            <span class="macro">assert!</span>(sim &gt;= <span class="number">0.0</span> &amp;&amp; sim &lt;= <span class="number">1.0</span>);
+        }
+    }
+}
+
+<span class="comment">/// Test pipeline with special characters</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_special_characters</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"Hello, World! How are you?"</span>.to_string(),
+        <span class="string">"HELLO WORLD HOW ARE YOU"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="macro">assert!</span>(
+        (result.matrix[<span class="number">0</span>][<span class="number">1</span>] - <span class="number">1.0</span>).abs() &lt; <span class="number">0.001</span>,
+        <span class="string">"Documents that normalize to same text should have similarity 1.0"</span>
+    );
+}
+
+<span class="comment">/// Test index labels</span>
+<span class="attribute">#[test]</span>
+<span class="keyword">fn</span> <span class="function">test_index_labels</span>() {
+    <span class="keyword">let</span> documents = <span class="keyword">vec!</span>[
+        <span class="string">"doc one"</span>.to_string(),
+        <span class="string">"doc two"</span>.to_string(),
+        <span class="string">"doc three"</span>.to_string(),
+    ];
+
+    <span class="keyword">let</span> result = analyze_documents(&amp;documents);
+
+    <span class="macro">assert_eq!</span>(result.index, <span class="keyword">vec!</span>[<span class="string">"doc0"</span>, <span class="string">"doc1"</span>, <span class="string">"doc2"</span>]);
+}
+
+<span class="attribute">#[cfg(test)]</span>
+<span class="keyword">mod</span> api_tests {
+    <span class="keyword">use</span> document_similarity_analyzer::models::AnalyzeRequest;
+    <span class="keyword">use</span> document_similarity_analyzer::api::validate_request;
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_no_documents</span>() {
+        <span class="keyword">let</span> request = AnalyzeRequest::new(<span class="keyword">vec!</span>[]);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_err());
+    }
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_single_document</span>() {
+        <span class="keyword">let</span> request = AnalyzeRequest::new(<span class="keyword">vec!</span>[<span class="string">"only one"</span>.to_string()]);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_err());
+    }
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_empty_string</span>() {
+        <span class="keyword">let</span> request = AnalyzeRequest::new(<span class="keyword">vec!</span>[<span class="string">"valid"</span>.to_string(), <span class="string">""</span>.to_string()]);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_err());
+    }
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_too_many_documents</span>() {
+        <span class="keyword">let</span> documents: Vec&lt;<span class="type">String</span>&gt; = (<span class="number">0</span>..<span class="number">101</span>).map(|i| <span class="macro">format!</span>(<span class="string">"doc {}"</span>, i)).collect();
+        <span class="keyword">let</span> request = AnalyzeRequest::new(documents);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_err());
+    }
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_valid_request</span>() {
+        <span class="keyword">let</span> request = AnalyzeRequest::new(<span class="keyword">vec!</span>[
+            <span class="string">"first doc"</span>.to_string(), 
+            <span class="string">"second doc"</span>.to_string()
+        ]);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_ok());
+    }
+
+    <span class="attribute">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_validate_exactly_100_documents</span>() {
+        <span class="keyword">let</span> documents: Vec&lt;<span class="type">String</span>&gt; = (<span class="number">0</span>..<span class="number">100</span>).map(|i| <span class="macro">format!</span>(<span class="string">"doc {}"</span>, i)).collect();
+        <span class="keyword">let</span> request = AnalyzeRequest::new(documents);
+        <span class="keyword">let</span> result = validate_request(&amp;request);
+        <span class="macro">assert!</span>(result.is_ok());
+    }
+}</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- END OF SOURCE CODE -->
+      <div
+        style="
+          text-align: center;
+          margin-top: 40px;
+          padding: 20px;
+          border-top: 2px solid #333;
+          font-family: Arial, sans-serif;
+        "
+      >
+        <p><strong>End of Source Code Listing</strong></p>
+        <p style="font-size: 10pt; color: #666">
+          Document Similarity Analyzer - Rust Implementation
+        </p>
+        <p style="font-size: 10pt; color: #666">Total: 20 source files</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -100,24 +100,6 @@ curl -X POST http://localhost:3000/analyze \
   }'
 ```
 
-### Menggunakan PowerShell
-
-```powershell
-# Health check
-Invoke-RestMethod -Uri "http://localhost:3000/health" -Method GET
-
-# Analyze documents
-$body = @{
-    documents = @(
-        "machine learning is fascinating",
-        "deep learning neural networks",
-        "cooking recipes and food"
-    )
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "http://localhost:3000/analyze" -Method POST -Body $body -ContentType "application/json"
-```
-
 ## ⚙️ Konfigurasi
 
 | Environment Variable | Default | Deskripsi                                   |

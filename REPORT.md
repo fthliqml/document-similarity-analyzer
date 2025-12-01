@@ -1,7 +1,7 @@
 # Document Similarity Analyzer
 
 _Pendekatan Pemrograman Fungsional dengan Rust_  
-**Penulis:** Muhammad Fatihul Iqmal
+**Penulis:** Muhammad Fatihul Iqmal, Awal Ramadhani, Vivian Marsyanda, Muhammad ‘Aaqil S., Muhammad Arsyad A., Cinta Satilla
 
 ---
 
@@ -689,16 +689,7 @@ $ cargo run
 2025-11-30T10:00:00.001000Z  INFO document_similarity_analyzer::api::server: Server running on 0.0.0.0:3000
 ```
 
-### 2. Health Check
-
-![Health Check](screenshots/health_check.png)
-
-```bash
-$ curl http://localhost:3000/health
-OK
-```
-
-### 3. Analyze Documents
+### 2. Analyze Documents
 
 ![Analyze Response](screenshots/analyze_response.png)
 
@@ -723,9 +714,7 @@ $ curl -X POST http://localhost:3000/analyze \
 }
 ```
 
-### 4. Running Tests
-
-![Tests Passing](screenshots/tests_passing.png)
+### 3. Running Tests
 
 ```bash
 $ cargo test
@@ -785,6 +774,3 @@ Potensi pengembangan di masa depan:
 - Integrasi dengan frontend untuk visualisasi heatmap
 
 ---
-
-**Repository:** [GitHub Link]  
-**License:** MIT License
