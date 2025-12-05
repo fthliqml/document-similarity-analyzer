@@ -1,7 +1,7 @@
 //! Similarity Matrix generation - parallel computation
 
-use rayon::prelude::*;
 use super::cosine_similarity;
+use rayon::prelude::*;
 
 /// Computes a full NxN similarity matrix from TF-IDF vectors.
 /// Utilizes parallel processing for efficiency.
@@ -16,8 +16,8 @@ use super::cosine_similarity;
 /// - Diagonal is always 1.0 (document is identical to itself)
 /// - Matrix is symmetric: matrix[i][j] == matrix[j][i]
 pub fn compute_similarity_matrix(vectors: &[Vec<f32>]) -> Vec<Vec<f32>> {
-    let n = vectors.len();
-    
+    let n = vectors.len(); //TODO penamaan variabel
+
     if n == 0 {
         return vec![];
     }
@@ -63,7 +63,7 @@ mod tests {
     fn test_single_vector() {
         let vectors = vec![vec![1.0, 2.0, 3.0]];
         let matrix = compute_similarity_matrix(&vectors);
-        
+
         assert_eq!(matrix.len(), 1);
         assert_eq!(matrix[0].len(), 1);
         assert!(approx_eq(matrix[0][0], 1.0));
@@ -71,11 +71,7 @@ mod tests {
 
     #[test]
     fn test_diagonal_is_one() {
-        let vectors = vec![
-            vec![1.0, 2.0],
-            vec![3.0, 4.0],
-            vec![5.0, 6.0],
-        ];
+        let vectors = vec![vec![1.0, 2.0], vec![3.0, 4.0], vec![5.0, 6.0]];
         let matrix = compute_similarity_matrix(&vectors);
 
         for i in 0..vectors.len() {
@@ -85,11 +81,7 @@ mod tests {
 
     #[test]
     fn test_matrix_symmetry() {
-        let vectors = vec![
-            vec![1.0, 0.0],
-            vec![1.0, 1.0],
-            vec![0.0, 1.0],
-        ];
+        let vectors = vec![vec![1.0, 0.0], vec![1.0, 1.0], vec![0.0, 1.0]];
         let matrix = compute_similarity_matrix(&vectors);
 
         for i in 0..vectors.len() {
@@ -115,10 +107,7 @@ mod tests {
 
     #[test]
     fn test_orthogonal_vectors() {
-        let vectors = vec![
-            vec![1.0, 0.0],
-            vec![0.0, 1.0],
-        ];
+        let vectors = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
         let matrix = compute_similarity_matrix(&vectors);
 
         assert!(approx_eq(matrix[0][1], 0.0));

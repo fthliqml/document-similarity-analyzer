@@ -26,7 +26,7 @@ pub fn compute_tf(tokens: &[String]) -> HashMap<String, f32> {
     }
 
     let total = tokens.len() as f32;
-    let mut counts: HashMap<String, usize> = HashMap::new();
+    let mut counts: HashMap<String, usize> = HashMap::new(); // hindari mutable
 
     for token in tokens {
         *counts.entry(token.clone()).or_insert(0) += 1;
@@ -82,7 +82,12 @@ mod tests {
 
     #[test]
     fn test_unique_tokens() {
-        let tokens = vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()];
+        let tokens = vec![
+            "a".to_string(),
+            "b".to_string(),
+            "c".to_string(),
+            "d".to_string(),
+        ];
         let tf = compute_tf(&tokens);
 
         for (_, freq) in &tf {

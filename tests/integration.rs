@@ -3,8 +3,6 @@
 //! These tests verify the full pipeline and API endpoints work correctly.
 
 use document_similarity_analyzer::core::analyze_documents;
-use document_similarity_analyzer::models::AnalyzeRequest;
-use document_similarity_analyzer::api::validate_request;
 
 /// Test full pipeline with known documents
 #[test]
@@ -83,10 +81,7 @@ fn test_deterministic_output() {
 /// Test with identical documents
 #[test]
 fn test_identical_documents() {
-    let documents = vec![
-        "hello world".to_string(),
-        "hello world".to_string(),
-    ];
+    let documents = vec!["hello world".to_string(), "hello world".to_string()];
 
     let result = analyze_documents(&documents);
 
@@ -104,10 +99,7 @@ fn test_identical_documents() {
 /// Test with completely different documents
 #[test]
 fn test_completely_different_documents() {
-    let documents = vec![
-        "apple banana cherry".to_string(),
-        "xyz uvw rst".to_string(),
-    ];
+    let documents = vec!["apple banana cherry".to_string(), "xyz uvw rst".to_string()];
 
     let result = analyze_documents(&documents);
 
@@ -163,10 +155,7 @@ fn test_special_characters() {
 /// Test with minimum documents (2)
 #[test]
 fn test_minimum_documents() {
-    let documents = vec![
-        "first document".to_string(),
-        "second document".to_string(),
-    ];
+    let documents = vec!["first document".to_string(), "second document".to_string()];
 
     let result = analyze_documents(&documents);
 
@@ -200,7 +189,7 @@ fn test_punctuation_only_documents() {
 
     // Should still produce a valid matrix
     assert_eq!(result.matrix.len(), 2);
-    
+
     // Empty document should have 0 similarity with everything except itself
     // (depending on implementation, diagonal might still be 1.0 or NaN handled as 0)
 }
@@ -244,8 +233,8 @@ fn test_long_documents() {
 
 #[cfg(test)]
 mod api_tests {
-    use document_similarity_analyzer::models::AnalyzeRequest;
     use document_similarity_analyzer::api::validate_request;
+    use document_similarity_analyzer::models::AnalyzeRequest;
 
     /// Test request validation - empty documents
     #[test]

@@ -1172,6 +1172,24 @@ async fn main() -&gt; std::io::Result&lt;()&gt; {
     <h2>Screenshot</h2>
 
     <h3>1. Menjalankan Server</h3>
+    <div
+      class="screenshot-container"
+      style="text-align: center; margin: 20px 0"
+    >
+      <img
+        src="../screenshots/server_running.png"
+        alt="Server Running"
+        style="
+          max-width: 100%;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        "
+      />
+      <p style="color: #666; font-style: italic; margin-top: 10px">
+        Screenshot: Server berjalan di port 3000
+      </p>
+    </div>
     <pre><code class="language-bash">$ cargo run
    Compiling document-similarity-analyzer v0.1.0
     Finished dev [unoptimized + debuginfo] target(s) in 5.23s
@@ -1180,6 +1198,24 @@ async fn main() -&gt; std::io::Result&lt;()&gt; {
 2025-11-30T10:00:00.001000Z  INFO document_similarity_analyzer::api::server: Server running on 0.0.0.0:3000</code></pre>
 
     <h3>2. Analyze Documents</h3>
+    <div
+      class="screenshot-container"
+      style="text-align: center; margin: 20px 0"
+    >
+      <img
+        src="../screenshots/analyze_response.png"
+        alt="Analyze Response"
+        style="
+          max-width: 100%;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        "
+      />
+      <p style="color: #666; font-style: italic; margin-top: 10px">
+        Screenshot: Response dari endpoint /analyze
+      </p>
+    </div>
     <pre><code class="language-bash">$ curl -X POST http://localhost:3000/analyze \
   -H "Content-Type: application/json" \
   -d '{

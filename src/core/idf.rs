@@ -27,9 +27,9 @@ pub fn compute_idf(tfs: &[HashMap<String, f32>]) -> HashMap<String, f32> {
     }
 
     let n = tfs.len() as f32;
-    let mut document_frequency: HashMap<String, usize> = HashMap::new();
+    let mut document_frequency: HashMap<String, usize> = HashMap::new(); // hindari mutable
 
-    // Count in how many documents each term appears
+    // Count in how many documents each term appears (bisa lebih clean)
     for tf in tfs {
         let terms: HashSet<&String> = tf.keys().collect();
         for term in terms {
@@ -59,11 +59,10 @@ mod tests {
 
     #[test]
     fn test_single_document() {
-        let tf: HashMap<String, f32> = [
-            ("hello".to_string(), 0.5),
-            ("world".to_string(), 0.5),
-        ].into_iter().collect();
-        
+        let tf: HashMap<String, f32> = [("hello".to_string(), 0.5), ("world".to_string(), 0.5)]
+            .into_iter()
+            .collect();
+
         let idf = compute_idf(&[tf]);
 
         // With smoothed IDF: log((1+1)/(1+1)) + 1 = log(1) + 1 = 1.0
@@ -73,14 +72,11 @@ mod tests {
 
     #[test]
     fn test_multiple_documents() {
-        let tf1: HashMap<String, f32> = [
-            ("hello".to_string(), 0.5),
-            ("world".to_string(), 0.5),
-        ].into_iter().collect();
-        
-        let tf2: HashMap<String, f32> = [
-            ("hello".to_string(), 1.0),
-        ].into_iter().collect();
+        let tf1: HashMap<String, f32> = [("hello".to_string(), 0.5), ("world".to_string(), 0.5)]
+            .into_iter()
+            .collect();
+
+        let tf2: HashMap<String, f32> = [("hello".to_string(), 1.0)].into_iter().collect();
 
         let idf = compute_idf(&[tf1, tf2]);
 
@@ -102,10 +98,9 @@ mod tests {
     fn test_rare_term_high_idf() {
         let tf1: HashMap<String, f32> = [("common".to_string(), 1.0)].into_iter().collect();
         let tf2: HashMap<String, f32> = [("common".to_string(), 1.0)].into_iter().collect();
-        let tf3: HashMap<String, f32> = [
-            ("common".to_string(), 0.5),
-            ("rare".to_string(), 0.5),
-        ].into_iter().collect();
+        let tf3: HashMap<String, f32> = [("common".to_string(), 0.5), ("rare".to_string(), 0.5)]
+            .into_iter()
+            .collect();
 
         let idf = compute_idf(&[tf1, tf2, tf3]);
 
@@ -118,9 +113,9 @@ mod tests {
         // Even when all docs have the same term, IDF should be positive
         let tf1: HashMap<String, f32> = [("common".to_string(), 1.0)].into_iter().collect();
         let tf2: HashMap<String, f32> = [("common".to_string(), 1.0)].into_iter().collect();
-        
+
         let idf = compute_idf(&[tf1, tf2]);
-        
+
         assert!(idf["common"] > 0.0);
     }
 }
