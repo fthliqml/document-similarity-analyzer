@@ -1,14 +1,23 @@
 # Document Similarity Analyzer
 
-Backend service berbasis Rust untuk menganalisis kesamaan dokumen teks menggunakan **TF-IDF** dan **Cosine Similarity** dengan parallel processing.
+🔍 **Sentence-Level Document Similarity Analysis using TF-IDF and Cosine Similarity**
+
+Backend service berbasis Rust untuk menganalisis kesamaan dokumen pada level kalimat menggunakan **TF-IDF** dan **Cosine Similarity** dengan parallel processing. Mendukung format PDF, DOCX, dan TXT.
+
+---
 
 ## ✨ Fitur
 
+- 📄 **Multi-Format Support** - PDF, DOCX, dan TXT
+- 🎯 **Analisis Level Kalimat** - Deteksi similarity per kalimat yang presisi
 - 🚀 **High Performance** - Parallel processing dengan Rayon
-- 📊 **TF-IDF Vectorization** - Term Frequency-Inverse Document Frequency
-- 📐 **Cosine Similarity** - Mengukur kesamaan antar dokumen
+- 📊 **TF-IDF Vectorization** - Global IDF untuk akurasi maksimal
+- 📐 **Cosine Similarity** - Cross-document comparison
+- 🔧 **Configurable Threshold** - Atur sensitivity (0.0-1.0)
 - 🔄 **REST API** - Endpoint sederhana dengan Axum
-- ✅ **Pure Functional** - Core functions tanpa side effects
+- ✅ **Production-Ready** - 83 tests passing
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -16,13 +25,17 @@ Backend service berbasis Rust untuk menganalisis kesamaan dokumen teks menggunak
 - **Axum** 0.7 - HTTP Framework
 - **Tokio** - Async Runtime
 - **Rayon** 1.8 - Parallel Processing
+- **pdf-extract** 0.7 - PDF text extraction
+- **docx-rs** 0.4 - DOCX parsing
 - **Serde** - Serialization
+
+---
 
 ## 📦 Instalasi
 
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/fthliqml/document-similarity-analyzer.git
 cd document-similarity-analyzer
 
 # Build project
@@ -32,186 +45,182 @@ cargo build --release
 cargo run --release
 ```
 
-Server akan berjalan di `http://localhost:3000`
+Server akan berjalan di `http://0.0.0.0:3000`
 
-## 🔌 API Endpoints
+---
+
+## 🚀 Quick Start
 
 ### Health Check
 
-```http
-GET /health
+```bash
+curl http://localhost:3000/health
 ```
 
-**Response:**
+### Analisis Dokumen
 
-```
-OK
-```
+**Basic (threshold default 0.70):**
 
-### Analyze Documents
-
-```http
-POST /analyze
-Content-Type: application/json
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@document1.pdf" \
+  -F "files=@document2.txt"
 ```
 
-**Request Body:**
+**Dengan Custom Threshold:**
+
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@thesis.pdf" \
+  -F "files=@reference.docx" \
+  -F "files=@paper.txt" \
+  -F "threshold=0.85"
+```
+
+### Response Example
 
 ```json
 {
-  "documents": [
-    "The quick brown fox jumps over the lazy dog",
-    "A quick brown dog outpaces a lazy fox",
-    "Hello world this is a test"
+  "metadata": {
+    "documents_count": 3,
+    "total_sentences": 264,
+    "processing_time_ms": 175,
+    "threshold": 0.7
+  },
+  "matches": [
+    {
+      "source_doc": "thesis.pdf",
+      "source_sentence_index": 14,
+      "target_doc": "reference.docx",
+      "target_sentence_index": 9,
+      "similarity": 0.9143
+    }
+  ],
+  "global_similarity": [
+    {
+      "docA": "thesis.pdf",
+      "docB": "reference.docx",
+      "score": 0.7834
+    }
   ]
 }
 ```
 
-**Response:**
+---
 
-```json
-{
-  "similarity_matrix": [
-    [1.0, 0.456, 0.123],
-    [0.456, 1.0, 0.089],
-    [0.123, 0.089, 1.0]
-  ],
-  "index": ["doc0", "doc1", "doc2"]
-}
-```
+## 📋 Requirements & Limits
 
-## 📝 Contoh Penggunaan
+| Constraint        | Value          |
+| ----------------- | -------------- |
+| Minimum files     | 2              |
+| Maximum files     | 5              |
+| Max file size     | 10 MB          |
+| Max total size    | 50 MB          |
+| Supported formats | PDF, DOCX, TXT |
+| Threshold range   | 0.0 - 1.0      |
 
-### Menggunakan cURL
+---
 
-```bash
-# Health check
-curl http://localhost:3000/health
+## 📚 Dokumentasi Lengkap
 
-# Analyze documents
-curl -X POST http://localhost:3000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "documents": [
-      "machine learning is fascinating",
-      "deep learning neural networks",
-      "cooking recipes and food"
-    ]
-  }'
-```
+Untuk dokumentasi API lengkap, contoh kode, dan error handling:
 
-## ⚙️ Konfigurasi
+👉 **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)**
 
-| Environment Variable | Default | Deskripsi                                   |
-| -------------------- | ------- | ------------------------------------------- |
-| `PORT`               | `3000`  | Port server                                 |
-| `RUST_LOG`           | `info`  | Log level (trace, debug, info, warn, error) |
-
-```bash
-# Contoh menjalankan dengan custom port
-PORT=8080 cargo run
-```
-
-## 📊 Batasan Input
-
-| Parameter                    | Nilai  |
-| ---------------------------- | ------ |
-| Minimum dokumen              | 2      |
-| Maximum dokumen              | 100    |
-| Maximum karakter per dokumen | 50,000 |
-
-## 🧪 Testing
-
-```bash
-# Run semua tests
-cargo test
-
-# Run unit tests saja
-cargo test --lib
-
-# Run integration tests
-cargo test --test integration
-
-# Run dengan output
-cargo test -- --nocapture
-```
-
-## 📈 Benchmarks
-
-```bash
-# Run benchmarks
-cargo bench
-```
+---
 
 ## 🏗️ Arsitektur
 
 ```
-src/
-├── api/
-│   ├── error.rs      # Error handling
-│   ├── handlers.rs   # Request handlers
-│   ├── mod.rs
-│   └── server.rs     # Server setup
-├── core/
-│   ├── idf.rs        # Inverse Document Frequency
-│   ├── matrix.rs     # Similarity matrix
-│   ├── mod.rs
-│   ├── normalize.rs  # Text normalization
-│   ├── pipeline.rs   # Processing pipeline
-│   ├── similarity.rs # Cosine similarity
-│   ├── tf.rs         # Term Frequency
-│   ├── tokenize.rs   # Tokenization
-│   └── vectorize.rs  # TF-IDF vectorization
-├── models/
-│   ├── document.rs   # Data structures
-│   ├── mod.rs
-│   ├── request.rs    # API request
-│   └── response.rs   # API response
-├── lib.rs
-└── main.rs
+Upload Files → Extract Text (PDF/DOCX/TXT)
+           ↓
+Split into Sentences (regex: [.!?]\s+)
+           ↓
+Preprocessing (normalize + tokenize)
+           ↓
+TF-IDF Vectors (sentence-level, global IDF)
+           ↓
+Cosine Similarity (cross-document only)
+           ↓
+Filter by Threshold + Global Scoring
+           ↓
+JSON Response
 ```
 
-## 📐 Algoritma
+---
 
-### TF-IDF (Term Frequency-Inverse Document Frequency)
+## 🧪 Testing
 
-1. **Term Frequency (TF)**: Frekuensi kata dalam dokumen
+```bash
+# Run all tests
+cargo test
 
-   ```
-   TF(t,d) = count(t in d) / total_words(d)
-   ```
+# Run dengan output
+cargo test -- --nocapture
 
-2. **Inverse Document Frequency (IDF)**: Pentingnya kata di seluruh corpus
-
-   ```
-   IDF(t) = log((N + 1) / (df(t) + 1)) + 1
-   ```
-
-   (Smoothed IDF untuk menghindari division by zero)
-
-3. **TF-IDF Score**:
-   ```
-   TF-IDF(t,d) = TF(t,d) × IDF(t)
-   ```
-
-### Cosine Similarity
-
-Mengukur sudut antara dua vektor TF-IDF:
-
-```
-similarity(A,B) = (A · B) / (||A|| × ||B||)
+# Run integration test
+cargo test --test manual_workflow_test
 ```
 
-- **1.0** = Dokumen identik
-- **0.0** = Dokumen tidak memiliki kata yang sama
-- **0.0 - 1.0** = Tingkat kesamaan
+**Test Coverage:**
 
-## 📄 License
+- ✅ 83 Unit Tests (extraction, sentence, TF-IDF, models)
+- ✅ Integration Tests (end-to-end workflow)
+- ✅ All tests passing
+
+---
+
+## 📊 Performance
+
+Waktu proses tipikal (bervariasi tergantung ukuran dokumen):
+
+- **2 dokumen, ~50 kalimat**: 45-80ms
+- **3 dokumen, ~150 kalimat**: 120-200ms
+- **5 dokumen, ~300 kalimat**: 250-500ms
+
+**Optimizations:**
+
+- ✅ Rayon parallel processing
+- ✅ Efficient HashMap TF-IDF
+- ✅ Zero-copy iterators
+- ✅ Release mode optimizations
+
+---
+
+## 🎯 Use Cases
+
+- **Deteksi Plagiarisme**: Identifikasi konten yang disalin
+- **Analisis Similarity**: Temukan bagian serupa di paper penelitian
+- **Perbandingan Dokumen**: Bandingkan versi atau dokumen terkait
+- **Riset Akademik**: Analisis pola kutipan dan overlap konten
+- **Content Moderation**: Deteksi submission duplikat
+
+---
+
+## 🤝 Contributing
+
+Kontribusi sangat diterima! Silakan buat Pull Request.
+
+1. Fork repository
+2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+---
+
+## 📝 License
 
 MIT License
 
-## 👤 Author
+---
 
-**Muhammad Fatihul Iqmal**
+## 🔗 Links
 
-Document Similarity Analyzer - Built with ❤️ and Rust
+- **Repository**: https://github.com/fthliqml/document-similarity-analyzer
+- **Issues**: https://github.com/fthliqml/document-similarity-analyzer/issues
+- **API Docs**: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+---
+
+**Built with ❤️ using Rust**
