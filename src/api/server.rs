@@ -8,7 +8,8 @@ use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::info;
 
-use super::handlers::{analyze_handler, health_handler};
+use super::file_upload::analyze_files_handler;
+use super::handlers::health_handler;
 
 /// Creates the Axum router with all routes configured
 pub fn create_router() -> Router {
@@ -20,7 +21,7 @@ pub fn create_router() -> Router {
 
     Router::new()
         .route("/health", get(health_handler))
-        .route("/analyze", post(analyze_handler))
+        .route("/api/analyze", post(analyze_files_handler))
         .layer(cors)
 }
 
@@ -30,11 +31,12 @@ pub async fn run_server(port: u16) -> anyhow::Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
     info!("🚀 Server starting on http://{}", addr);
-    info!("📊 POST /analyze - Analyze document similarity");
-    info!("❤️  GET /health  - Health check");
+    info!("📊 POST /api/analyze - Analyze sentence-level similarity (multipart file upload)");
+    info!("❤️  GET /health      - Health check");
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
 
     Ok(())
 }
+
