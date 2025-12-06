@@ -37,6 +37,26 @@ pub fn vectorize(
         .collect()
 }
 
+/// Compute TF-IDF vector directly as HashMap (for sentence-level analysis)
+///
+/// # Arguments
+/// * `tf` - Term Frequency map
+/// * `idf` - Inverse Document Frequency map
+///
+/// # Returns
+/// HashMap mapping terms to their TF-IDF scores
+pub fn compute_tfidf_vector(
+    tf: &HashMap<String, f32>,
+    idf: &HashMap<String, f32>,
+) -> HashMap<String, f32> {
+    tf.iter()
+        .map(|(term, tf_value)| {
+            let idf_value = idf.get(term).copied().unwrap_or(0.0);
+            (term.clone(), tf_value * idf_value)
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
