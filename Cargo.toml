@@ -7,9 +7,13 @@ description = "Backend service for analyzing document similarity using TF-IDF an
 
 [dependencies]
 # Web Framework
-axum = "0.7"
+axum = { version = "0.7", features = ["multipart"] }
 tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.5", features = ["cors"] }
+
+# File Extraction
+pdf-extract = "0.7"
+docx-rs = "0.4"
 
 # Parallel Processing
 rayon = "1.8"
@@ -25,6 +29,10 @@ anyhow = "1"
 # Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Regex for sentence splitting
+regex = "1"
+lazy_static = "1.4"
 
 [dev-dependencies]
 criterion = "0.5"
