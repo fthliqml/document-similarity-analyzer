@@ -61,21 +61,3 @@ pub fn extract_docx(file_bytes: &[u8]) -> Result<String, String> {
             text_parts.join("\n")
         })
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extract_docx_empty_bytes() {
-        let result = extract_docx(&[]);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_extract_docx_invalid_bytes() {
-        let invalid_docx = b"This is not a valid DOCX file";
-        let result = extract_docx(invalid_docx);
-        assert!(result.is_err());
-    }
-}

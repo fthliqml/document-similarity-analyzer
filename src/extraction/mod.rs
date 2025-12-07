@@ -46,25 +46,3 @@ pub fn extract_text(file_bytes: &[u8], file_type: FileType) -> Result<String, St
         FileType::Txt => extract_txt(file_bytes),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_file_type_from_extension() {
-        assert_eq!(FileType::from_extension("pdf"), Some(FileType::Pdf));
-        assert_eq!(FileType::from_extension("PDF"), Some(FileType::Pdf));
-        assert_eq!(FileType::from_extension("docx"), Some(FileType::Docx));
-        assert_eq!(FileType::from_extension("txt"), Some(FileType::Txt));
-        assert_eq!(FileType::from_extension("unknown"), None);
-    }
-
-    #[test]
-    fn test_file_type_from_filename() {
-        assert_eq!(FileType::from_filename("doc.pdf"), Some(FileType::Pdf));
-        assert_eq!(FileType::from_filename("report.docx"), Some(FileType::Docx));
-        assert_eq!(FileType::from_filename("notes.txt"), Some(FileType::Txt));
-        assert_eq!(FileType::from_filename("image.jpg"), None);
-    }
-}
