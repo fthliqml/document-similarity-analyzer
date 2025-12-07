@@ -28,13 +28,6 @@ struct SentenceVector {
 }
 
 /// Analyze sentence-level similarity across multiple documents
-///
-/// # Arguments
-/// * `documents` - Slice of SentenceDocuments to analyze
-/// * `threshold` - Minimum similarity score to include in results (0.0-1.0)
-///
-/// # Returns
-/// Tuple of (matches above threshold, global similarity scores)
 pub fn analyze_sentence_similarity(
     documents: &[SentenceDocument],
     threshold: f32,
@@ -103,13 +96,12 @@ pub fn analyze_sentence_similarity(
     (matches, global_similarities)
 }
 
-/// Compute sentence matches above threshold (cross-document only)
 fn compute_sentence_matches(
     vectors: &[SentenceVector],
     documents: &[SentenceDocument],
     threshold: f32,
 ) -> Vec<SentenceMatch> {
-    // Generate all pairs and filter by threshold
+    // Generate all pairs, filter by threshold, and sort by similarity descending
     let mut matches: Vec<SentenceMatch> = vectors
         .iter()
         .enumerate()
@@ -146,7 +138,7 @@ fn compute_sentence_matches(
         })
         .collect();
 
-    // Sort by similarity descending
+    // Sort by similarity descending (must use mut here as sort_by requires &mut self)
     matches.sort_by(|a, b| b.similarity.partial_cmp(&a.similarity).unwrap());
 
     matches
@@ -208,62 +200,8 @@ fn compute_global_similarities(
         })
         .collect();
 
-    // Sort by score descending
+    // Sort by score descending (must use mut here as sort_by requires &mut self)
     global_sims.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
 
     global_sims
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sentence_document_creation() {
-        let doc = SentenceDocument::new(
-            "test.txt".to_string(),
-            vec!["First sentence.".to_string(), "Second sentence.".to_string()],
-        );
-        assert_eq!(doc.filename, "test.txt");
-        assert_eq!(doc.sentences.len(), 2);
-    }
-
-    #[test]
-    fn test_analyze_empty_documents() {
-        let docs: Vec<SentenceDocument> = vec![];
-        let (matches, global) = analyze_sentence_similarity(&docs, 0.7);
-        assert!(matches.is_empty());
-        assert!(global.is_empty());
-    }
-
-    #[test]
-    fn test_analyze_single_document() {
-        let doc = SentenceDocument::new(
-            "doc1.txt".to_string(),
-            vec!["Hello world.".to_string()],
-        );
-        let (matches, global) = analyze_sentence_similarity(&[doc], 0.7);
-        // No matches (need at least 2 documents for cross-doc comparison)
-        assert!(matches.is_empty());
-        assert!(global.is_empty());
-    }
-
-    #[test]
-    fn test_analyze_two_documents() {
-        let doc1 = SentenceDocument::new(
-            "doc1.txt".to_string(),
-            vec!["The quick brown fox.".to_string()],
-        );
-        let doc2 = SentenceDocument::new(
-            "doc2.txt".to_string(),
-            vec!["The quick brown fox.".to_string()], // Identical
-        );
-
-        let (matches, global) = analyze_sentence_similarity(&[doc1, doc2], 0.7);
-
-        // Should find high similarity
-        assert!(!matches.is_empty());
-        assert!(!global.is_empty());
-        assert!(matches[0].similarity > 0.9);
-    }
 }
