@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document Similarity Analyzer - Laporan Proyek</title>
+    <title>
+      Document Similarity Analyzer - Sentence-Level Plagiarism Detection
+    </title>
 
     <!-- KaTeX for Math Rendering -->
     <link
@@ -18,11 +20,11 @@
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
       onload="renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '$', right: '$', display: false}
-            ]
-        });"
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false}
+        ]
+      });"
     ></script>
 
     <!-- Highlight.js for Code Syntax -->
@@ -32,305 +34,157 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
     <script>
       hljs.highlightAll();
     </script>
 
     <style>
-      /* ===== BASE STYLES ===== */
       :root {
-        --primary-color: #b7410e;
-        --secondary-color: #2c3e50;
-        --accent-color: #e74c3c;
-        --bg-color: #ffffff;
-        --text-color: #333333;
-        --code-bg: #f8f9fa;
-        --border-color: #e0e0e0;
-        --success-color: #27ae60;
+        --primary: #2563eb;
+        --secondary: #64748b;
+        --success: #10b981;
+        --background: #ffffff;
+        --text: #1e293b;
+        --border: #e2e8f0;
+        --code-bg: #f8fafc;
       }
 
       * {
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
       }
 
       body {
-        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-        font-size: 11pt;
-        line-height: 1.7;
-        color: var(--text-color);
-        background: var(--bg-color);
-        max-width: 210mm;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.8;
+        color: var(--text);
+        background: var(--background);
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 20mm 15mm;
+        padding: 40px 20px;
       }
 
-      /* ===== TYPOGRAPHY ===== */
       h1 {
-        font-size: 24pt;
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 5px;
-        font-weight: 700;
-        border-bottom: none;
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        border-bottom: 4px solid var(--primary);
+        padding-bottom: 10px;
       }
 
       h1 + p {
-        text-align: center;
+        font-size: 1.1rem;
+        color: var(--secondary);
         font-style: italic;
-        margin-bottom: 0;
+        margin-bottom: 0.5rem;
       }
 
       h2 {
-        font-size: 16pt;
-        color: var(--secondary-color);
-        border-bottom: 2px solid var(--primary-color);
+        font-size: 2rem;
+        color: var(--primary);
+        margin: 2.5rem 0 1rem 0;
+        border-bottom: 2px solid var(--border);
         padding-bottom: 8px;
-        margin-top: 30px;
-        page-break-after: avoid;
       }
 
       h3 {
-        font-size: 13pt;
-        color: var(--secondary-color);
-        margin-top: 25px;
-        page-break-after: avoid;
+        font-size: 1.5rem;
+        color: var(--text);
+        margin: 2rem 0 1rem 0;
       }
 
       h4 {
-        font-size: 11pt;
-        color: var(--primary-color);
-        margin-top: 20px;
-        page-break-after: avoid;
+        font-size: 1.25rem;
+        color: var(--text);
+        margin: 1.5rem 0 0.75rem 0;
       }
 
       p {
+        margin-bottom: 1rem;
         text-align: justify;
-        margin: 10px 0;
       }
 
       strong {
-        color: var(--secondary-color);
-      }
-
-      /* ===== HEADER INFO ===== */
-      .header-info {
-        text-align: center;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .header-info .subtitle {
-        font-style: italic;
-        color: #666;
-        margin: 5px 0;
-      }
-
-      .header-info .author {
+        color: var(--primary);
         font-weight: 600;
-        margin-top: 10px;
       }
 
-      /* ===== LISTS ===== */
+      .author {
+        color: var(--secondary);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+      }
+
       ul,
       ol {
-        margin: 10px 0;
-        padding-left: 25px;
+        margin: 1rem 0 1rem 2rem;
+        line-height: 1.8;
       }
 
       li {
-        margin: 5px 0;
+        margin-bottom: 0.5rem;
       }
 
-      /* ===== TABLES ===== */
       table {
         width: 100%;
         border-collapse: collapse;
-        margin: 15px 0;
-        font-size: 10pt;
-        page-break-inside: avoid;
+        margin: 1.5rem 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
 
       th {
-        background: var(--primary-color);
+        background: var(--primary);
         color: white;
-        padding: 10px 12px;
+        padding: 12px;
         text-align: left;
         font-weight: 600;
       }
 
       td {
-        padding: 8px 12px;
-        border-bottom: 1px solid var(--border-color);
+        padding: 10px 12px;
+        border: 1px solid var(--border);
       }
 
       tr:nth-child(even) {
-        background: #f9f9f9;
+        background: #f9fafb;
       }
 
       tr:hover {
-        background: #f0f0f0;
+        background: #f1f5f9;
       }
 
-      /* ===== CODE BLOCKS ===== */
       pre {
         background: var(--code-bg);
-        border: 1px solid var(--border-color);
-        border-left: 4px solid var(--primary-color);
-        border-radius: 4px;
-        padding: 12px 15px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 1.25rem;
         overflow-x: auto;
-        font-size: 9pt;
-        line-height: 1.5;
-        margin: 15px 0;
-        page-break-inside: avoid;
+        margin: 1rem 0;
+        font-size: 0.9rem;
       }
 
       code {
-        font-family: "Consolas", "Monaco", "Courier New", monospace;
-        font-size: 9pt;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
       }
 
       :not(pre) > code {
-        background: #f0f0f0;
+        background: var(--code-bg);
         padding: 2px 6px;
         border-radius: 3px;
-        color: var(--accent-color);
+        color: #c7254e;
       }
 
-      /* ===== MATH FORMULAS ===== */
-      .math-block {
-        background: linear-gradient(135deg, #fef9f3 0%, #fff5eb 100%);
-        border: 1px solid #f0d9c0;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin: 15px 0;
-        text-align: center;
-        page-break-inside: avoid;
-      }
-
-      .math-block .katex {
-        font-size: 1.1em;
-      }
-
-      /* ===== DIAGRAM BOX ===== */
-      .diagram-box {
-        background: #f8f9fa;
-        border: 2px solid var(--secondary-color);
-        border-radius: 8px;
-        padding: 15px;
-        margin: 15px 0;
-        font-family: "Consolas", monospace;
-        font-size: 9pt;
-        line-height: 1.4;
-        overflow-x: auto;
-        page-break-inside: avoid;
-      }
-
-      /* ===== FUNCTIONAL PRINCIPLES ===== */
-      .principle-list {
-        background: #f0fff4;
-        border-left: 4px solid var(--success-color);
-        padding: 10px 15px;
-        margin: 10px 0;
-        border-radius: 0 4px 4px 0;
-      }
-
-      .principle-list li {
-        list-style: none;
-        margin: 5px 0;
-      }
-
-      .principle-list li::before {
-        content: "✅ ";
-      }
-
-      /* ===== HORIZONTAL RULE ===== */
-      hr {
-        border: none;
-        height: 1px;
-        background: linear-gradient(
-          to right,
-          transparent,
-          var(--border-color),
-          transparent
-        );
-        margin: 30px 0;
-      }
-
-      /* ===== PRINT STYLES ===== */
-      @media print {
-        body {
-          padding: 0;
-          font-size: 10pt;
-        }
-
-        h1 {
-          font-size: 20pt;
-        }
-        h2 {
-          font-size: 14pt;
-        }
-        h3 {
-          font-size: 12pt;
-        }
-
-        pre {
-          font-size: 8pt;
-          page-break-inside: avoid;
-        }
-
-        table {
-          page-break-inside: avoid;
-        }
-
-        .page-break {
-          page-break-before: always;
-        }
-
-        h2,
-        h3,
-        h4 {
-          page-break-after: avoid;
-        }
-
-        ul,
-        ol,
-        p {
-          page-break-inside: avoid;
-        }
-      }
-
-      /* ===== STRUCTURE TREE ===== */
-      .file-tree {
-        background: #2d2d2d;
-        color: #f8f8f2;
-        padding: 15px 20px;
-        border-radius: 8px;
-        font-family: "Consolas", monospace;
-        font-size: 9pt;
-        line-height: 1.6;
-      }
-
-      .file-tree .folder {
-        color: #66d9ef;
-      }
-
-      .file-tree .file {
-        color: #a6e22e;
-      }
-
-      .file-tree .comment {
-        color: #75715e;
-      }
-
-      /* ===== ABSTRACT BOX ===== */
       .abstract-box {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 20px 25px;
-        border-radius: 10px;
-        margin: 20px 0;
+        padding: 2rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
       .abstract-box h2 {
@@ -340,126 +194,201 @@
       }
 
       .abstract-box p {
-        text-align: justify;
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .diagram-box {
+        background: #f8fafc;
+        border-left: 4px solid var(--primary);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+
+      .comparison-table {
+        margin: 2rem 0;
+      }
+
+      .comparison-table th {
+        background: #10b981;
+      }
+
+      hr {
+        border: none;
+        border-top: 3px double var(--border);
+        margin: 3rem 0;
+      }
+
+      @media print {
+        body {
+          max-width: 100%;
+          padding: 20px;
+        }
+        h1 {
+          page-break-after: avoid;
+        }
+        pre,
+        table {
+          page-break-inside: avoid;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- ===== HEADER ===== -->
-    <div class="header-info">
-      <h1>Document Similarity Analyzer</h1>
-      <p class="subtitle">Pendekatan Pemrograman Fungsional dengan Rust</p>
-      <p class="author">
-        <strong>Penulis:</strong> Muhammad Fatihul Iqmal, Awal Ramadhani, Vivian
-        Marsyanda,<br />Muhammad 'Aaqil S., Muhammad Arsyad A., Cinta Satilla
-      </p>
-    </div>
+    <!-- HEADER -->
+    <h1>Document Similarity Analyzer</h1>
+    <p>
+      <em
+        >Sentence-Level Plagiarism Detection dengan Pemrograman Fungsional
+        menggunakan Rust</em
+      >
+    </p>
+    <p class="author">
+      <strong>Penulis:</strong> Muhammad Fatihul Iqmal, Awal Ramadhani, Vivian
+      Marsyanda, Muhammad 'Aaqil S., Muhammad Arsyad A., Cinta Satilla
+    </p>
 
-    <!-- ===== ABSTRAK ===== -->
+    <hr />
+
+    <!-- ABSTRAK -->
     <div class="abstract-box">
       <h2>Abstrak</h2>
       <p>
-        Document Similarity Analyzer adalah layanan backend berbasis Rust yang
-        dirancang untuk menganalisis tingkat kesamaan antar dokumen teks. Proyek
-        ini mengimplementasikan algoritma
-        <strong>TF-IDF (Term Frequency-Inverse Document Frequency)</strong> dan
-        <strong>Cosine Similarity</strong> untuk mengukur kemiripan semantik
-        dokumen. Dengan memanfaatkan framework <strong>Axum</strong> untuk HTTP
-        server dan <strong>Rayon</strong> untuk parallel processing, aplikasi
-        ini mampu memproses hingga 100 dokumen secara bersamaan dengan performa
-        tinggi. Seluruh core logic dibangun menggunakan prinsip
+        Document Similarity Analyzer adalah layanan backend berbasis Rust untuk
+        deteksi plagiarisme dan analisis kesamaan dokumen pada
+        <strong>level kalimat</strong>. Berbeda dengan sistem tradisional yang
+        menganalisis kesamaan per dokumen, sistem ini mengimplementasikan
+        <strong>sentence-level TF-IDF</strong> dan
+        <strong>Cosine Similarity</strong> untuk mengidentifikasi
+        kalimat-kalimat spesifik yang mirip antar dokumen. Aplikasi ini
+        mendukung multi-format file (PDF, DOCX, TXT) dengan upload maksimal 5
+        file, menggunakan <strong>Axum</strong> untuk HTTP server dan
+        <strong>Rayon</strong> untuk parallel processing. Threshold similarity
+        yang dapat dikonfigurasi (default 0.70) memungkinkan fleksibilitas
+        antara precision dan recall. Seluruh core logic dibangun dengan prinsip
         <strong>pemrograman fungsional</strong> — pure functions, immutability,
-        dan transformasi data tanpa side effects — sehingga menghasilkan kode
-        yang mudah diuji, diprediksi, dan dimaintain.
+        dan data transformations — menghasilkan kode yang robust, testable, dan
+        maintainable.
       </p>
     </div>
 
     <hr />
 
-    <!-- ===== PENDAHULUAN ===== -->
+    <!-- PENDAHULUAN -->
     <h2>Pendahuluan</h2>
 
     <h3>Latar Belakang Masalah</h3>
     <p>
-      Di era digital saat ini, volume dokumen teks yang perlu dianalisis semakin
-      meningkat. Kebutuhan untuk mendeteksi kemiripan dokumen muncul di berbagai
-      bidang:
+      Di era digital, kebutuhan untuk mendeteksi plagiarisme dan menganalisis
+      kesamaan dokumen semakin krusial:
     </p>
     <ul>
-      <li><strong>Akademik</strong>: Deteksi plagiarisme pada karya tulis</li>
       <li>
-        <strong>Bisnis</strong>: Pengelompokan dokumen serupa untuk efisiensi
+        <strong>Akademik</strong>: Deteksi plagiarisme pada paper, thesis, dan
+        tugas mahasiswa
       </li>
       <li>
-        <strong>Penelitian</strong>: Analisis corpus teks dalam jumlah besar
+        <strong>Penelitian</strong>: Identifikasi duplikasi konten dalam
+        publikasi ilmiah
+      </li>
+      <li>
+        <strong>Legal</strong>: Analisis kemiripan dokumen dalam kasus hukum
+      </li>
+      <li>
+        <strong>Content Moderation</strong>: Deteksi duplikasi konten online
       </li>
     </ul>
-    <p>
-      Tantangan utama adalah bagaimana memproses banyak dokumen secara efisien
-      sambil mempertahankan akurasi perhitungan kesamaan.
-    </p>
+
+    <p><strong>Masalah Sistem Tradisional:</strong></p>
+    <ul>
+      <li>
+        Analisis per dokumen hanya memberikan skor global (misal: "Dokumen A 78%
+        mirip dengan Dokumen B")
+      </li>
+      <li>Tidak bisa menunjukkan <strong>bagian mana yang mirip</strong></li>
+      <li>Sulit untuk memberikan evidence konkret untuk plagiarisme</li>
+    </ul>
+
+    <p><strong>Solusi: Sentence-Level Analysis</strong></p>
+    <ul>
+      <li>
+        Identifikasi <strong>kalimat spesifik</strong> yang mirip antar dokumen
+      </li>
+      <li>Memberikan index sentence untuk highlighting di frontend</li>
+      <li>Support multiple file formats (PDF, DOCX, TXT)</li>
+    </ul>
 
     <h3>Mengapa Memilih Rust?</h3>
-    <p>Rust dipilih karena beberapa keunggulan:</p>
+    <p>Rust dipilih karena keunggulan:</p>
     <ol>
       <li>
-        <strong>Memory Safety</strong> — Tanpa garbage collector, namun aman
-        dari memory leaks
+        <strong>Memory Safety</strong> — Zero-cost abstractions tanpa garbage
+        collector
       </li>
       <li>
-        <strong>Zero-Cost Abstractions</strong> — Abstraksi tingkat tinggi tanpa
-        overhead runtime
+        <strong>Performance</strong> — Kecepatan setara C/C++ dengan type safety
+        modern
       </li>
       <li>
         <strong>Concurrency</strong> — Parallel processing yang aman dengan
-        jaminan compile-time
+        compile-time guarantees
       </li>
       <li>
-        <strong>Performance</strong> — Kecepatan setara C/C++ dengan keamanan
-        modern
+        <strong>Ecosystem</strong> — Library berkualitas tinggi (Axum, Rayon,
+        Tokio)
       </li>
     </ol>
 
     <h3>Mengapa Pemrograman Fungsional?</h3>
-    <p>
-      Prinsip pemrograman fungsional sangat cocok untuk pipeline pemrosesan
-      data:
-    </p>
+    <p>Prinsip fungsional sangat cocok untuk data processing pipeline:</p>
     <ul>
       <li>
-        <strong>Pure Functions</strong> — Fungsi tanpa side effects, hasil hanya
-        bergantung pada input
+        <strong>Pure Functions</strong> — Output hanya bergantung pada input, no
+        side effects
       </li>
       <li>
-        <strong>Immutability</strong> — Data tidak diubah, melainkan
-        ditransformasi menjadi data baru
+        <strong>Immutability</strong> — Data tidak dimutasi, melainkan
+        ditransformasi
       </li>
       <li>
-        <strong>Composability</strong> — Fungsi-fungsi kecil dapat digabungkan
-        menjadi pipeline kompleks
+        <strong>Composability</strong> — Fungsi kecil dapat digabungkan menjadi
+        pipeline kompleks
       </li>
       <li>
-        <strong>Testability</strong> — Pure functions sangat mudah diuji karena
+        <strong>Testability</strong> — Pure functions mudah ditest karena
         deterministik
       </li>
       <li>
-        <strong>Parallelization</strong> — Pure functions dengan immutable data
-        sangat mudah diparalelkan karena tidak ada shared mutable state
+        <strong>Parallelization</strong> — Immutable data aman untuk parallel
+        processing tanpa locks
       </li>
     </ul>
 
     <h3>Keunikan Solusi</h3>
     <p>Proyek ini menggabungkan:</p>
     <ul>
-      <li>Pipeline fungsional murni untuk pemrosesan teks</li>
-      <li>Parallel processing otomatis dengan Rayon</li>
-      <li>REST API yang stateless dan mudah diintegrasikan</li>
-      <li>Arsitektur modular yang memisahkan core logic dari I/O</li>
+      <li>
+        <strong>Sentence-level granularity</strong> untuk deteksi plagiarisme
+        presisi
+      </li>
+      <li>Pipeline fungsional murni untuk text processing</li>
+      <li>
+        <strong>Multipart file upload</strong> dengan validasi komprehensif
+      </li>
+      <li>
+        <strong>Configurable threshold</strong> untuk fleksibilitas use case
+      </li>
+      <li>REST API stateless yang mudah diintegrasikan</li>
+      <li>
+        Response yang include <strong>sentence text</strong> untuk frontend
+        highlighting
+      </li>
     </ul>
 
     <hr />
 
-    <!-- ===== LATAR BELAKANG DAN KONSEP ===== -->
+    <!-- LATAR BELAKANG DAN KONSEP -->
     <h2>Latar Belakang dan Konsep</h2>
 
     <h3>Technology Stack</h3>
@@ -498,19 +427,24 @@
           <td>Serialization/deserialization JSON</td>
         </tr>
         <tr>
-          <td><strong>thiserror</strong></td>
-          <td>1.0</td>
-          <td>Custom error types</td>
+          <td><strong>pdf-extract</strong></td>
+          <td>0.7</td>
+          <td>PDF text extraction</td>
         </tr>
         <tr>
-          <td><strong>anyhow</strong></td>
-          <td>1.0</td>
-          <td>Error handling</td>
+          <td><strong>docx-rs</strong></td>
+          <td>0.4</td>
+          <td>DOCX text extraction</td>
+        </tr>
+        <tr>
+          <td><strong>regex</strong></td>
+          <td>1.10</td>
+          <td>Sentence splitting</td>
         </tr>
         <tr>
           <td><strong>tower-http</strong></td>
           <td>0.5</td>
-          <td>HTTP middleware (CORS)</td>
+          <td>HTTP middleware (CORS, multipart)</td>
         </tr>
         <tr>
           <td><strong>tracing</strong></td>
@@ -522,796 +456,369 @@
 
     <h3>Konsep Algoritma</h3>
 
-    <h4>TF-IDF (Term Frequency-Inverse Document Frequency)</h4>
-    <p>
-      TF-IDF adalah teknik statistik untuk mengevaluasi pentingnya sebuah kata
-      dalam dokumen relatif terhadap corpus (kumpulan dokumen).
-    </p>
-
-    <p><strong>Term Frequency (TF):</strong></p>
-    <div class="math-block">
-      $$TF(t, d) = \frac{\text{jumlah kemunculan term } t \text{ dalam dokumen }
-      d}{\text{total kata dalam dokumen } d}$$
-    </div>
-
-    <p><strong>Inverse Document Frequency (IDF):</strong></p>
-    <div class="math-block">
-      $$IDF(t) = \log\left(\frac{N + 1}{df(t) + 1}\right) + 1$$
-    </div>
-
-    <p>Dimana:</p>
-    <ul>
-      <li>$N$ = total jumlah dokumen</li>
-      <li>$df(t)$ = jumlah dokumen yang mengandung term $t$</li>
-      <li>Formula smoothed IDF digunakan untuk menghindari division by zero</li>
-    </ul>
-
-    <p><strong>TF-IDF Score:</strong></p>
-    <div class="math-block">
-      $$TF\text{-}IDF(t, d) = TF(t, d) \times IDF(t)$$
-    </div>
-
-    <h4>Cosine Similarity</h4>
-    <p>
-      Cosine Similarity mengukur sudut antara dua vektor dalam ruang
-      multidimensi:
-    </p>
-
-    <div class="math-block">
-      $$\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|} =
-      \frac{\sum_{i=1}^{n} A_i \times B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \times
-      \sqrt{\sum_{i=1}^{n} B_i^2}}$$
-    </div>
-
-    <p>Hasil:</p>
-    <ul>
-      <li><strong>1.0</strong> = Dokumen identik</li>
-      <li><strong>0.0</strong> = Dokumen tidak memiliki kesamaan</li>
-      <li><strong>0.0 - 1.0</strong> = Tingkat kesamaan parsial</li>
-    </ul>
-
-    <h4>Parallel Processing dengan Rayon</h4>
-    <p>
-      Proyek ini mengimplementasikan
-      <strong>parallel processing</strong> menggunakan library
-      <strong>Rayon</strong> untuk meningkatkan performa pada CPU multi-core.
-      Rayon memungkinkan paralelisasi dengan cara yang deklaratif dan aman.
-    </p>
-
-    <p><strong>Konsep Utama:</strong></p>
-    <ul>
-      <li>
-        <strong>Data Parallelism</strong> — Operasi yang sama diterapkan ke
-        banyak data secara bersamaan
-      </li>
-      <li>
-        <strong>Work Stealing</strong> — Rayon secara otomatis mendistribusikan
-        beban kerja antar thread
-      </li>
-      <li>
-        <strong>Zero-Cost Abstraction</strong> — Tidak ada overhead runtime yang
-        signifikan
-      </li>
-    </ul>
-
-    <p><strong>Alur Parallel Processing dalam Pipeline:</strong></p>
-    <div class="diagram-box">
-      <pre style="background: none; border: none; margin: 0; padding: 0">
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-├─────────────────────────────────────────────────────────────┤
-│  Doc1 ──► Normalize ──► Tokenize ──► TF                    │
-│  Doc2 ──► Normalize ──► Tokenize ──► TF    (bersamaan)     │
-│  Doc3 ──► Normalize ──► Tokenize ──► TF                    │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    SINGLE THREAD                            │
-│              Compute IDF (butuh semua TF)                   │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-│  TF1 + IDF ──► Vector1                                     │
-│  TF2 + IDF ──► Vector2    (bersamaan)                      │
-│  TF3 + IDF ──► Vector3                                     │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-│  Row 0: [sim(0,0), sim(0,1), sim(0,2), ...]                │
-│  Row 1: [sim(1,0), sim(1,1), sim(1,2), ...]  (bersamaan)   │
-│  Row 2: [sim(2,0), sim(2,1), sim(2,2), ...]                │
-└─────────────────────────────────────────────────────────────┘</pre
-      >
-    </div>
-
-    <p><strong>Implementasi Parallel di Kode:</strong></p>
-    <table>
+    <h4>Sentence-Level TF-IDF</h4>
+    <p><strong>Perbedaan dengan TF-IDF Tradisional:</strong></p>
+    <table class="comparison-table">
       <thead>
         <tr>
-          <th>Lokasi</th>
-          <th>Operasi</th>
-          <th>Method Rayon</th>
+          <th>Aspek</th>
+          <th>TF-IDF Tradisional</th>
+          <th>Sentence-Level TF-IDF</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><code>pipeline.rs</code></td>
-          <td>Normalisasi + Tokenisasi + TF</td>
-          <td><code>par_iter().map()</code></td>
+          <td><strong>Granularity</strong></td>
+          <td>Per dokumen</td>
+          <td><strong>Per kalimat</strong></td>
         </tr>
         <tr>
-          <td><code>pipeline.rs</code></td>
-          <td>Vektorisasi TF-IDF</td>
-          <td><code>par_iter().map()</code></td>
+          <td><strong>TF Calculation</strong></td>
+          <td>Term count / total words in document</td>
+          <td><strong>Term count / total words in sentence</strong></td>
         </tr>
         <tr>
-          <td><code>matrix.rs</code></td>
-          <td>Perhitungan Similarity Matrix</td>
-          <td><code>into_par_iter().map()</code></td>
+          <td><strong>IDF Scope</strong></td>
+          <td>Document frequency</td>
+          <td><strong>Sentence frequency (global)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Output</strong></td>
+          <td>Document similarity score</td>
+          <td><strong>Sentence pairs with similarity</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Use Case</strong></td>
+          <td>General similarity</td>
+          <td><strong>Plagiarism detection</strong></td>
         </tr>
       </tbody>
     </table>
 
-    <p><strong>Keuntungan Parallel Processing:</strong></p>
-    <ol>
+    <p><strong>Term Frequency (Per Sentence):</strong></p>
+    <div class="diagram-box">
+      $$TF(t, s) = \frac{\text{count of term } t \text{ in sentence }
+      s}{\text{total words in sentence } s}$$
+    </div>
+
+    <p><strong>Inverse Document Frequency (Global Sentences):</strong></p>
+    <div class="diagram-box">
+      $$IDF(t) = \log\left(\frac{N_{sentences} + 1}{df(t) + 1}\right) + 1$$
+    </div>
+
+    <p>Dimana:</p>
+    <ul>
       <li>
-        <strong>Skalabilitas</strong> — Performa meningkat linear dengan jumlah
-        CPU cores
+        $N_{sentences}$ = total jumlah kalimat dari
+        <strong>semua dokumen</strong>
+      </li>
+      <li>$df(t)$ = jumlah kalimat yang mengandung term $t$</li>
+    </ul>
+
+    <p><strong>TF-IDF Score:</strong></p>
+    <div class="diagram-box">
+      $$TF\text{-}IDF(t, s) = TF(t, s) \times IDF(t)$$
+    </div>
+
+    <h4>Cosine Similarity</h4>
+    <p>Mengukur sudut antara dua vektor TF-IDF:</p>
+    <div class="diagram-box">
+      $$\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|}$$
+    </div>
+
+    <p><strong>Hasil:</strong></p>
+    <ul>
+      <li>
+        <strong>≥ 0.85</strong> = Very High Similarity (likely plagiarism)
       </li>
       <li>
-        <strong>Efisiensi</strong> — Memanfaatkan semua cores yang tersedia
-        secara otomatis
+        <strong>0.70 - 0.84</strong> = High Similarity (significant overlap)
       </li>
-      <li>
-        <strong>Kemudahan</strong> — Hanya perlu mengubah
-        <code>.iter()</code> menjadi <code>.par_iter()</code>
-      </li>
-      <li>
-        <strong>Thread Safety</strong> — Rayon menjamin tidak ada data race
-        karena menggunakan immutable data
-      </li>
-    </ol>
+      <li><strong>0.50 - 0.69</strong> = Moderate Similarity</li>
+      <li><strong>&lt; 0.50</strong> = Low Similarity</li>
+    </ul>
+
+    <h4>Threshold Filtering</h4>
+    <p>
+      Sistem menggunakan <strong>configurable threshold</strong> (default 0.70):
+    </p>
+    <ul>
+      <li>Hanya sentence pairs dengan similarity ≥ threshold yang disimpan</li>
+      <li>Mengurangi false positives</li>
+      <li>User dapat adjust sesuai kebutuhan (ketat vs longgar)</li>
+    </ul>
+
+    <h4>Global Similarity Score</h4>
+    <p>Dihitung sebagai <strong>average dari sentence matches</strong>:</p>
+    <div class="diagram-box">
+      $$\text{Global Similarity}(Doc_A, Doc_B) = \frac{\sum \text{similarity
+      scores}}{|\text{matches}|}$$
+    </div>
+
+    <h4>Parallel Processing dengan Rayon</h4>
+    <p>
+      Sistem menggunakan <strong>Rayon</strong> untuk parallel processing pada
+      multi-core CPU:
+    </p>
+    <p><strong>Pipeline Parallel:</strong></p>
+    <div class="diagram-box">
+      <pre>
+┌────────────────────────────────────────────────┐
+│         PARALLEL (per sentence)                │
+│  Sentence 1 → Normalize → Tokenize → TF       │
+│  Sentence 2 → Normalize → Tokenize → TF       │
+│  Sentence N → Normalize → Tokenize → TF       │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         SINGLE THREAD                          │
+│  Compute Global IDF (needs all TFs)            │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         PARALLEL (per sentence)                │
+│  TF1 + IDF → TF-IDF Vector 1                   │
+│  TF2 + IDF → TF-IDF Vector 2                   │
+│  TFN + IDF → TF-IDF Vector N                   │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         PARALLEL (pairwise comparison)         │
+│  Compare all sentence pairs (cross-doc only)   │
+│  Filter by threshold                           │
+│  Sort by similarity                            │
+└────────────────────────────────────────────────┘
+      </pre>
+    </div>
 
     <hr />
 
-    <div class="page-break"></div>
-
-    <!-- ===== SOURCE CODE ===== -->
-    <h2>Source Code dan Penjelasan</h2>
-
-    <h3>Struktur Proyek</h3>
-    <div class="file-tree">
-      <pre
-        style="
-          background: none;
-          border: none;
-          margin: 0;
-          padding: 0;
-          color: inherit;
-        "
-      >src/
-├── api/                    <span class="comment"># Layer HTTP API</span>
-│   ├── mod.rs             <span class="comment"># Module exports</span>
-│   ├── error.rs           <span class="comment"># Custom error types</span>
-│   ├── handlers.rs        <span class="comment"># Request handlers</span>
-│   └── server.rs          <span class="comment"># Server configuration</span>
-├── core/                   <span class="comment"># Core logic (Pure Functions)</span>
-│   ├── mod.rs             <span class="comment"># Module exports</span>
-│   ├── normalize.rs       <span class="comment"># Text normalization</span>
-│   ├── tokenize.rs        <span class="comment"># Tokenization</span>
-│   ├── tf.rs              <span class="comment"># Term Frequency</span>
-│   ├── idf.rs             <span class="comment"># Inverse Document Frequency</span>
-│   ├── vectorize.rs       <span class="comment"># TF-IDF vectorization</span>
-│   ├── similarity.rs      <span class="comment"># Cosine similarity</span>
-│   ├── matrix.rs          <span class="comment"># Similarity matrix</span>
-│   └── pipeline.rs        <span class="comment"># Processing pipeline</span>
-├── models/                 <span class="comment"># Data structures</span>
-│   ├── mod.rs             <span class="comment"># Module exports</span>
-│   ├── document.rs        <span class="comment"># Document &amp; SimilarityMatrix</span>
-│   ├── request.rs         <span class="comment"># API request model</span>
-│   └── response.rs        <span class="comment"># API response model</span>
-├── lib.rs                  <span class="comment"># Library exports</span>
-└── main.rs                 <span class="comment"># Entry point</span></pre>
-    </div>
-
-    <h3>1. Text Normalization (<code>core/normalize.rs</code>)</h3>
-    <p>Fungsi pure untuk menormalisasi teks input:</p>
-    <pre><code class="language-rust">/// Menormalisasi teks dengan mengubah ke lowercase, menghapus punctuation,
-/// dan merapikan whitespace.
-pub fn normalize_text(text: &amp;str) -&gt; String {
-    text.chars()
-        .map(|c| {
-            if c.is_ascii_punctuation() {
-                ' '  // Ganti punctuation dengan spasi
-            } else {
-                c.to_ascii_lowercase()  // Ubah ke lowercase
-            }
-        })
-        .collect::&lt;String&gt;()
-        .split_whitespace()  // Hapus multiple whitespace
-        .collect::&lt;Vec&lt;_&gt;&gt;()
-        .join(" ")
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Pure Function</strong> — Output hanya bergantung pada input,
-          tanpa side effects
-        </li>
-        <li>
-          <strong>Immutability</strong> — String asli tidak dimodifikasi,
-          menghasilkan String baru
-        </li>
-        <li>
-          <strong>Method Chaining</strong> — Transformasi data melalui rangkaian
-          method calls
-        </li>
-      </ul>
-    </div>
-
-    <h3>2. Tokenization (<code>core/tokenize.rs</code>)</h3>
-    <p>Memecah teks menjadi kata-kata individual:</p>
-    <pre><code class="language-rust">/// Memecah teks menjadi vektor token (kata-kata).
-pub fn tokenize(text: &amp;str) -&gt; Vec&lt;String&gt; {
-    text.split_whitespace()
-        .filter(|s| !s.is_empty())
-        .map(String::from)
-        .collect()
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Higher-Order Functions</strong> — Menggunakan
-          <code>filter</code> dan <code>map</code>
-        </li>
-        <li>
-          <strong>Lazy Evaluation</strong> — Iterator dievaluasi saat
-          <code>collect()</code> dipanggil
-        </li>
-      </ul>
-    </div>
-
-    <h3>3. Term Frequency (<code>core/tf.rs</code>)</h3>
-    <p>Menghitung frekuensi setiap kata dalam dokumen:</p>
-    <pre><code class="language-rust">use std::collections::HashMap;
-
-/// Menghitung Term Frequency untuk setiap token dalam dokumen.
-/// TF = count(term) / total_terms
-pub fn compute_tf(tokens: &amp;[String]) -&gt; HashMap&lt;String, f32&gt; {
-    if tokens.is_empty() {
-        return HashMap::new();
-    }
-
-    let total = tokens.len() as f32;
-
-    // Hitung kemunculan setiap token
-    let mut counts: HashMap&lt;String, f32&gt; = HashMap::new();
-    for token in tokens {
-        *counts.entry(token.clone()).or_insert(0.0) += 1.0;
-    }
-
-    // Normalisasi dengan total tokens
-    counts
-        .into_iter()
-        .map(|(term, count)| (term, count / total))
-        .collect()
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Transformasi Data</strong> — Input tokens ditransformasi
-          menjadi HashMap frekuensi
-        </li>
-        <li>
-          <strong>No Side Effects</strong> — Tidak mengubah input, menghasilkan
-          struktur data baru
-        </li>
-      </ul>
-    </div>
-
-    <h3>4. Inverse Document Frequency (<code>core/idf.rs</code>)</h3>
-    <p>Menghitung bobot global setiap term di seluruh corpus:</p>
-    <pre><code class="language-rust">use std::collections::HashMap;
-
-/// Menghitung IDF untuk semua term dalam corpus.
-/// Menggunakan smoothed IDF: log((N+1)/(df+1)) + 1
-pub fn compute_idf(term_frequencies: &amp;[HashMap&lt;String, f32&gt;]) -&gt; HashMap&lt;String, f32&gt; {
-    let n = term_frequencies.len() as f32;
-
-    // Hitung document frequency untuk setiap term
-    let mut doc_freq: HashMap&lt;String, f32&gt; = HashMap::new();
-    for tf in term_frequencies {
-        for term in tf.keys() {
-            *doc_freq.entry(term.clone()).or_insert(0.0) += 1.0;
-        }
-    }
-
-    // Hitung IDF menggunakan smoothed formula
-    doc_freq
-        .into_iter()
-        .map(|(term, df)| {
-            let idf = ((n + 1.0) / (df + 1.0)).ln() + 1.0;
-            (term, idf)
-        })
-        .collect()
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Aggregation</strong> — Menggabungkan informasi dari multiple
-          dokumen
-        </li>
-        <li>
-          <strong>Mathematical Transformation</strong> — Menerapkan formula
-          matematika murni
-        </li>
-      </ul>
-    </div>
-
-    <h3>5. TF-IDF Vectorization (<code>core/vectorize.rs</code>)</h3>
-    <p>Mengubah dokumen menjadi vektor numerik:</p>
-    <pre><code class="language-rust">use std::collections::HashMap;
-
-/// Mengubah TF dan IDF menjadi vektor TF-IDF.
-pub fn vectorize(
-    tf: &amp;HashMap&lt;String, f32&gt;,
-    idf: &amp;HashMap&lt;String, f32&gt;,
-    vocabulary: &amp;[String],
-) -&gt; Vec&lt;f32&gt; {
-    vocabulary
-        .iter()
-        .map(|term| {
-            let tf_value = tf.get(term).copied().unwrap_or(0.0);
-            let idf_value = idf.get(term).copied().unwrap_or(0.0);
-            tf_value * idf_value
-        })
-        .collect()
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li><strong>Mapping</strong> — Setiap term di-map ke nilai TF-IDF</li>
-        <li>
-          <strong>Consistent Output</strong> — Vektor memiliki panjang tetap
-          sesuai vocabulary
-        </li>
-      </ul>
-    </div>
-
-    <h3>6. Cosine Similarity (<code>core/similarity.rs</code>)</h3>
-    <p>Menghitung kesamaan antara dua vektor:</p>
-    <pre><code class="language-rust">/// Menghitung Cosine Similarity antara dua vektor.
-/// Mengembalikan nilai antara 0.0 (tidak mirip) dan 1.0 (identik).
-pub fn cosine_similarity(vec_a: &amp;[f32], vec_b: &amp;[f32]) -&gt; f32 {
-    let dot_product: f32 = vec_a.iter()
-        .zip(vec_b.iter())
-        .map(|(a, b)| a * b)
-        .sum();
-
-    let magnitude_a: f32 = vec_a.iter().map(|x| x * x).sum::&lt;f32&gt;().sqrt();
-    let magnitude_b: f32 = vec_b.iter().map(|x| x * x).sum::&lt;f32&gt;().sqrt();
-
-    if magnitude_a == 0.0 || magnitude_b == 0.0 {
-        return 0.0;  // Handle edge case
-    }
-
-    dot_product / (magnitude_a * magnitude_b)
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li><strong>Pure Computation</strong> — Kalkulasi matematika murni</li>
-        <li>
-          <strong>Iterator Combinators</strong> — Menggunakan <code>zip</code>,
-          <code>map</code>, dan <code>sum</code>
-        </li>
-      </ul>
-    </div>
-
-    <h3>7. Similarity Matrix (<code>core/matrix.rs</code>)</h3>
-    <p>Membangun matriks kesamaan menggunakan parallel processing:</p>
-    <pre><code class="language-rust">use rayon::prelude::*;
-use super::cosine_similarity;
-
-/// Menghitung matriks kesamaan NxN secara parallel.
-pub fn compute_similarity_matrix(vectors: &amp;[Vec&lt;f32&gt;]) -&gt; Vec&lt;Vec&lt;f32&gt;&gt; {
-    let n = vectors.len();
-
-    (0..n)
-        .into_par_iter()  // Parallel iteration dengan Rayon
-        .map(|i| {
-            (0..n)
-                .map(|j| {
-                    if i == j {
-                        1.0  // Diagonal selalu 1.0
-                    } else {
-                        cosine_similarity(&amp;vectors[i], &amp;vectors[j])
-                    }
-                })
-                .collect()
-        })
-        .collect()
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Parallel Map</strong> — <code>par_iter()</code> memparalelkan
-          komputasi secara otomatis
-        </li>
-        <li>
-          <strong>Immutable Processing</strong> — Setiap thread bekerja pada
-          data terpisah
-        </li>
-      </ul>
-    </div>
-
-    <h3>8. Processing Pipeline (<code>core/pipeline.rs</code>)</h3>
-    <p>Menggabungkan semua fungsi menjadi pipeline terintegrasi:</p>
-    <pre><code class="language-rust">use rayon::prelude::*;
-use crate::models::SimilarityMatrix;
-use super::{normalize_text, tokenize, compute_tf, compute_idf, vectorize, compute_similarity_matrix};
-
-/// Pipeline utama untuk menganalisis kesamaan dokumen.
-pub fn analyze_documents(documents: &amp;[String]) -&gt; SimilarityMatrix {
-    // Step 1-3: Parallel processing
-    let term_frequencies: Vec&lt;_&gt; = documents
-        .par_iter()
-        .map(|doc| {
-            let normalized = normalize_text(doc);
-            let tokens = tokenize(&amp;normalized);
-            compute_tf(&amp;tokens)
-        })
-        .collect();
-
-    // Step 4: Compute global IDF
-    let idf = compute_idf(&amp;term_frequencies);
-
-    // Step 5: Build vocabulary
-    let mut vocabulary: Vec&lt;String&gt; = idf.keys().cloned().collect();
-    vocabulary.sort();  // Konsistensi ordering
-
-    // Step 6: Vectorize (parallel)
-    let vectors: Vec&lt;Vec&lt;f32&gt;&gt; = term_frequencies
-        .par_iter()
-        .map(|tf| vectorize(tf, &amp;idf, &amp;vocabulary))
-        .collect();
-
-    // Step 7: Compute similarity matrix (parallel)
-    let matrix = compute_similarity_matrix(&amp;vectors);
-
-    // Generate index labels
-    let index: Vec&lt;String&gt; = (0..documents.len())
-        .map(|i| format!("doc{}", i))
-        .collect();
-
-    SimilarityMatrix { matrix, index }
-}</code></pre>
-
-    <div class="principle-list">
-      <ul>
-        <li>
-          <strong>Function Composition</strong> — Fungsi-fungsi kecil
-          digabungkan menjadi pipeline
-        </li>
-        <li>
-          <strong>Data Flow</strong> — Data mengalir melalui transformasi
-          berurutan
-        </li>
-        <li>
-          <strong>Parallel Processing</strong> — Rayon menangani paralelisasi
-          secara deklaratif
-        </li>
-      </ul>
-    </div>
-
-    <h3>9. Data Models (<code>models/</code>)</h3>
-    <p>Struktur data immutable:</p>
-    <pre><code class="language-rust">// models/document.rs
-use serde::{Deserialize, Serialize};
-
-/// Hasil analisis kesamaan dokumen.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimilarityMatrix {
-    pub matrix: Vec&lt;Vec&lt;f32&gt;&gt;,
-    pub index: Vec&lt;String&gt;,
-}
-
-// models/request.rs
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AnalyzeRequest {
-    pub documents: Vec&lt;String&gt;,
-}
-
-// models/response.rs
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AnalyzeResponse {
-    pub similarity_matrix: Vec&lt;Vec&lt;f32&gt;&gt;,
-    pub index: Vec&lt;String&gt;,
-}</code></pre>
-
-    <h3>10. Error Handling (<code>api/error.rs</code>)</h3>
-    <p>Custom error types menggunakan thiserror:</p>
-    <pre><code class="language-rust">use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
-use axum::Json;
-use serde_json::json;
-
-#[derive(Debug, thiserror::Error)]
-pub enum AppError {
-    #[error("Terlalu banyak dokumen: {0}, maksimum 100")]
-    TooManyDocuments(usize),
-
-    #[error("Dokumen tidak cukup: {0}, minimum 2")]
-    NotEnoughDocuments(usize),
-
-    #[error("Dokumen kosong pada index {0}")]
-    EmptyDocument(usize),
-
-    #[error("Tidak ada dokumen yang diberikan")]
-    NoDocuments,
-
-    #[error("Dokumen terlalu panjang pada index {0}, maksimum {1} karakter")]
-    DocumentTooLong(usize, usize),
-}
-
-impl IntoResponse for AppError {
-    fn into_response(self) -&gt; Response {
-        let (status, message) = match &amp;self {
-            AppError::TooManyDocuments(_) =&gt; (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::NotEnoughDocuments(_) =&gt; (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::EmptyDocument(_) =&gt; (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::NoDocuments =&gt; (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::DocumentTooLong(_, _) =&gt; (StatusCode::BAD_REQUEST, self.to_string()),
-        };
-
-        let body = Json(json!({ "error": message }));
-        (status, body).into_response()
-    }
-}</code></pre>
-
-    <h3>11. API Handlers (<code>api/handlers.rs</code>)</h3>
-    <pre><code class="language-rust">use axum::Json;
-use crate::core::analyze_documents;
-use crate::models::{AnalyzeRequest, AnalyzeResponse};
-use super::AppError;
-
-const MAX_DOCUMENTS: usize = 100;
-const MIN_DOCUMENTS: usize = 2;
-
-/// Handler untuk POST /analyze
-pub async fn analyze_handler(
-    Json(payload): Json&lt;AnalyzeRequest&gt;,
-) -&gt; Result&lt;Json&lt;AnalyzeResponse&gt;, AppError&gt; {
-    validate_request(&amp;payload)?;
-    let result = analyze_documents(&amp;payload.documents);
-    Ok(Json(AnalyzeResponse::from(result)))
-}
-
-/// Validasi request
-pub fn validate_request(request: &amp;AnalyzeRequest) -&gt; Result&lt;(), AppError&gt; {
-    if request.documents.is_empty() {
-        return Err(AppError::NoDocuments);
-    }
-    if request.documents.len() &lt; MIN_DOCUMENTS {
-        return Err(AppError::NotEnoughDocuments(request.documents.len()));
-    }
-    if request.documents.len() &gt; MAX_DOCUMENTS {
-        return Err(AppError::TooManyDocuments(request.documents.len()));
-    }
-    for (i, doc) in request.documents.iter().enumerate() {
-        if doc.trim().is_empty() {
-            return Err(AppError::EmptyDocument(i));
-        }
-    }
-    Ok(())
-}
-
-/// Handler untuk GET /health
-pub async fn health_handler() -&gt; &amp;'static str {
-    "OK"
-}</code></pre>
-
-    <h3>12. Server Setup (<code>api/server.rs</code>)</h3>
-    <pre><code class="language-rust">use axum::{routing::{get, post}, Router};
-use tower_http::cors::{Any, CorsLayer};
-use super::handlers::{analyze_handler, health_handler};
-
-pub fn create_router() -&gt; Router {
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
-
-    Router::new()
-        .route("/health", get(health_handler))
-        .route("/analyze", post(analyze_handler))
-        .layer(cors)
-}
-
-pub async fn run_server(addr: &amp;str) -&gt; std::io::Result&lt;()&gt; {
-    let router = create_router();
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    tracing::info!("Server running on {}", addr);
-    axum::serve(listener, router).await?;
-    Ok(())
-}</code></pre>
-
-    <h3>13. Entry Point (<code>main.rs</code>)</h3>
-    <pre><code class="language-rust">use document_similarity_analyzer::api::run_server;
-use tracing_subscriber;
-
-#[tokio::main]
-async fn main() -&gt; std::io::Result&lt;()&gt; {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("document_similarity_analyzer=info".parse().unwrap())
-        )
-        .init();
-
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
-    let addr = format!("0.0.0.0:{}", port);
-
-    tracing::info!("Starting Document Similarity Analyzer on port {}", port);
-    run_server(&amp;addr).await
-}</code></pre>
-
-    <hr />
-
-    <!-- ===== SCREENSHOT ===== -->
+    <!-- SCREENSHOT -->
     <h2>Screenshot</h2>
 
-    <h3>1. Menjalankan Server</h3>
-    <div
-      class="screenshot-container"
-      style="text-align: center; margin: 20px 0"
-    >
-      <img
-        src="../screenshots/server_running.png"
-        alt="Server Running"
-        style="
-          max-width: 100%;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        "
-      />
-      <p style="color: #666; font-style: italic; margin-top: 10px">
-        Screenshot: Server berjalan di port 3000
-      </p>
-    </div>
-    <pre><code class="language-bash">$ cargo run
+    <h3>1. Running Server</h3>
+    <pre><code class="language-bash">$ cargo run --release
    Compiling document-similarity-analyzer v0.1.0
-    Finished dev [unoptimized + debuginfo] target(s) in 5.23s
-     Running `target/debug/document-similarity-analyzer`
-2025-11-30T10:00:00.000000Z  INFO document_similarity_analyzer: Starting Document Similarity Analyzer on port 3000
-2025-11-30T10:00:00.001000Z  INFO document_similarity_analyzer::api::server: Server running on 0.0.0.0:3000</code></pre>
+    Finished release [optimized] target(s) in 45.32s
+     Running `target/release/document-similarity-analyzer`
 
-    <h3>2. Analyze Documents</h3>
-    <div
-      class="screenshot-container"
-      style="text-align: center; margin: 20px 0"
-    >
-      <img
-        src="../screenshots/analyze_response.png"
-        alt="Analyze Response"
-        style="
-          max-width: 100%;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        "
-      />
-      <p style="color: #666; font-style: italic; margin-top: 10px">
-        Screenshot: Response dari endpoint /analyze
-      </p>
-    </div>
-    <pre><code class="language-bash">$ curl -X POST http://localhost:3000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "documents": [
-      "kucing duduk di atas tikar",
-      "anjing berlari di taman",
-      "halo dunia ini adalah tes"
-    ]
-  }'
+2025-12-08T08:00:00.000Z  INFO Server running on 0.0.0.0:3000</code></pre>
 
-{
-  "similarity_matrix": [
-    [1.0, 0.1847, 0.0],
-    [0.1847, 1.0, 0.0],
-    [0.0, 0.0, 1.0]
+    <h3>2. API Request &amp; Response</h3>
+    <p><strong>Request:</strong></p>
+    <pre><code class="language-bash">curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@research_paper.pdf" \
+  -F "files=@reference_1.docx" \
+  -F "files=@reference_2.txt" \
+  -F "threshold=0.75"</code></pre>
+
+    <p><strong>Response:</strong></p>
+    <pre><code class="language-json">{
+  "metadata": {
+    "documents_count": 3,
+    "total_sentences": 118,
+    "processing_time_ms": 84,
+    "threshold": 0.75
+  },
+  "matches": [
+    {
+      "source_doc": "research_paper.pdf",
+      "source_sentence_index": 20,
+      "source_sentence": "Security systems employ computer vision for surveillance and threat detection.",
+      "target_doc": "reference_1.docx",
+      "target_sentence_index": 20,
+      "target_sentence": "Surveillance systems employ computer vision for security and monitoring applications.",
+      "similarity": 0.7022883
+    }
   ],
-  "index": ["doc0", "doc1", "doc2"]
+  "global_similarity": [
+    {
+      "docA": "research_paper.pdf",
+      "docB": "reference_1.docx",
+      "score": 0.0415522
+    }
+  ]
 }</code></pre>
 
     <h3>3. Running Tests</h3>
     <pre><code class="language-bash">$ cargo test
-   Compiling document-similarity-analyzer v0.1.0
-    Finished test [unoptimized + debuginfo] target(s) in 3.45s
+    Finished test [unoptimized + debuginfo] target(s) in 4.12s
      Running unittests src/lib.rs
 
-running 63 tests
-test core::idf::tests::test_compute_idf_basic ... ok
-test core::normalize::tests::test_normalize_basic ... ok
+running 83 tests
+test sentence::tests::test_split_sentences_basic ... ok
+test core::tf::tests::test_basic_tf ... ok
+test core::idf::tests::test_multiple_documents ... ok
 test core::similarity::tests::test_identical_vectors ... ok
-... (semua 63 tests passed)
+test core::sentence_pipeline::tests::test_analyze_two_documents ... ok
+... (all 83 tests passed)
 
-test result: ok. 63 passed; 0 failed; 0 ignored</code></pre>
+test result: ok. 83 passed; 0 failed; 0 ignored</code></pre>
 
     <hr />
 
-    <!-- ===== KESIMPULAN ===== -->
+    <!-- KESIMPULAN -->
     <h2>Kesimpulan</h2>
 
     <h3>Pencapaian Proyek</h3>
     <p>Document Similarity Analyzer berhasil mengimplementasikan:</p>
     <ol>
       <li>
-        <strong>Algoritma TF-IDF dan Cosine Similarity</strong> yang akurat
-        untuk mengukur kesamaan dokumen teks
-      </li>
-      <li>
-        <strong>Pendekatan Pemrograman Fungsional</strong> dengan:
+        <strong>Sentence-Level Analysis</strong> untuk plagiarism detection yang
+        presisi:
         <ul>
-          <li>Pure functions di seluruh core logic</li>
-          <li>Immutability pada semua data structures</li>
-          <li>Function composition untuk membangun pipeline</li>
-          <li>Higher-order functions (map, filter, fold)</li>
+          <li>Identifikasi kalimat spesifik yang mirip antar dokumen</li>
+          <li>Response include sentence text untuk frontend highlighting</li>
+          <li>Cross-document comparison only (no intra-document)</li>
         </ul>
       </li>
       <li>
-        <strong>Parallel Processing</strong> dengan Rayon yang meningkatkan
-        performa hingga 4-8x pada multi-core CPU
+        <strong>Multipart File Upload</strong> dengan validasi komprehensif:
+        <ul>
+          <li>Support PDF, DOCX, TXT</li>
+          <li>Max 5 files, 10MB per file, 50MB total</li>
+          <li>Automatic text extraction dan sentence splitting</li>
+        </ul>
       </li>
       <li>
-        <strong>REST API</strong> yang sederhana dan stateless menggunakan Axum
+        <strong>Configurable Threshold</strong> untuk fleksibilitas:
+        <ul>
+          <li>Default 0.70 (balanced)</li>
+          <li>User dapat adjust: ketat (0.85+) atau longgar (0.50-0.65)</li>
+          <li>Filter otomatis matches by threshold</li>
+        </ul>
       </li>
       <li>
-        <strong>Test Coverage</strong> yang komprehensif dengan 81 tests (63
-        unit + 18 integration)
+        <strong>Pendekatan Pemrograman Fungsional</strong>:
+        <ul>
+          <li>Pure functions di seluruh core logic</li>
+          <li>
+            Immutability (hanya 3 <code>mut</code> untuk sorting API
+            requirement)
+          </li>
+          <li>Function composition dengan iterator chains</li>
+          <li>
+            Higher-order functions (<code>map</code>, <code>filter</code>,
+            <code>fold</code>, <code>flat_map</code>)
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Parallel Processing</strong> dengan Rayon:
+        <ul>
+          <li>Sentence normalization &amp; tokenization (parallel)</li>
+          <li>TF calculation per sentence (parallel)</li>
+          <li>TF-IDF vectorization (parallel)</li>
+          <li>Pairwise similarity computation (parallel)</li>
+          <li>Performance improvement 4-8x pada multi-core CPU</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Comprehensive Testing</strong>:
+        <ul>
+          <li>83 unit tests covering all modules</li>
+          <li>Integration tests untuk API endpoints</li>
+          <li>Test coverage untuk edge cases</li>
+        </ul>
       </li>
     </ol>
 
     <h3>Pembelajaran</h3>
-    <p>Melalui proyek ini, kami memahami bahwa:</p>
+    <p>Melalui proyek ini, kami memahami:</p>
     <ul>
       <li>
-        <strong>Rust dan Pemrograman Fungsional</strong> sangat kompatibel —
-        ownership system mendorong immutability secara natural
+        <strong>Sentence-level analysis</strong> lebih valuable untuk plagiarism
+        detection dibanding document-level
       </li>
       <li>
-        <strong>Parallel processing</strong> menjadi trivial dengan library
-        seperti Rayon ketika menggunakan pure functions
+        <strong>Rust dan pemrograman fungsional</strong> sangat kompatibel —
+        ownership system mendorong immutability
       </li>
       <li>
-        <strong>Separation of concerns</strong> antara core logic (pure) dan I/O
-        (impure) menghasilkan arsitektur yang bersih
+        <strong>Parallel processing</strong> menjadi trivial dengan Rayon ketika
+        data immutable
       </li>
       <li>
-        <strong>Type system Rust</strong> membantu menangkap error di compile
-        time, bukan runtime
+        <strong>HashMap-based vectors</strong> lebih efficient untuk sparse data
+        dibanding dense arrays
+      </li>
+      <li>
+        <strong>Regex-based sentence splitting</strong> simple namun effective
+        untuk bahasa Indonesia/Inggris
+      </li>
+      <li>
+        <strong>Threshold tuning</strong> critical untuk balance antara
+        precision dan recall
       </li>
     </ul>
 
+    <h3>Perbedaan Sistem Lama vs Baru</h3>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Aspek</th>
+          <th>Sistem Lama (Document-Level)</th>
+          <th>Sistem Baru (Sentence-Level)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Granularity</strong></td>
+          <td>Per dokumen</td>
+          <td><strong>Per kalimat</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Output</strong></td>
+          <td>Similarity matrix</td>
+          <td><strong>Matched sentence pairs + global score</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Frontend</strong></td>
+          <td>Tidak bisa highlight</td>
+          <td><strong>Bisa highlight exact sentences</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Use Case</strong></td>
+          <td>General similarity</td>
+          <td><strong>Plagiarism detection dengan evidence</strong></td>
+        </tr>
+        <tr>
+          <td><strong>API</strong></td>
+          <td>JSON array dokumen</td>
+          <td><strong>Multipart file upload (PDF/DOCX/TXT)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Threshold</strong></td>
+          <td>Fixed</td>
+          <td><strong>Configurable (0.0-1.0)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Response</strong></td>
+          <td>Matrix saja</td>
+          <td><strong>Metadata + matches + global similarity</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
     <h3>Pengembangan Selanjutnya</h3>
-    <p>Potensi pengembangan di masa depan:</p>
+    <p>Potensi improvement di masa depan:</p>
     <ul>
-      <li>Implementasi stemming untuk bahasa Indonesia</li>
-      <li>Dukungan stop words removal</li>
-      <li>Caching hasil IDF untuk corpus yang tidak berubah</li>
-      <li>WebSocket untuk real-time analysis</li>
-      <li>Integrasi dengan frontend untuk visualisasi heatmap</li>
+      <li>
+        <strong>Stemming</strong> untuk bahasa Indonesia (Sastrawi library)
+      </li>
+      <li><strong>Stop words removal</strong> untuk meningkatkan akurasi</li>
+      <li>
+        <strong>Sentence embeddings</strong> dengan transformer models
+        (BERT/RoBERTa)
+      </li>
+      <li><strong>WebSocket</strong> untuk real-time progress updates</li>
+      <li>
+        <strong>Frontend dashboard</strong> untuk visualisasi heatmap dan
+        highlighting
+      </li>
+      <li><strong>Batch processing</strong> untuk analisis corpus besar</li>
+      <li><strong>Caching IDF</strong> untuk corpus yang tidak berubah</li>
+      <li><strong>Support more formats</strong> (ODT, RTF, HTML)</li>
     </ul>
 
     <hr />
