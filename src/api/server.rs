@@ -8,8 +8,7 @@ use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::info;
 
-use super::file_upload::analyze_files_handler;
-use super::handlers::health_handler;
+use super::file_upload::{analyze_files_handler, health_handler};
 
 /// Creates the Axum router with all routes configured
 pub fn create_router() -> Router {

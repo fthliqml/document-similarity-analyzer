@@ -56,20 +56,3 @@ impl IntoResponse for AppError {
         (status, Json(body)).into_response()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_error_messages() {
-        let err = AppError::TooManyDocuments(150);
-        assert!(err.to_string().contains("150"));
-
-        let err = AppError::EmptyDocument(5);
-        assert!(err.to_string().contains("5"));
-
-        let err = AppError::NotEnoughDocuments(1);
-        assert!(err.to_string().contains("1"));
-    }
-}

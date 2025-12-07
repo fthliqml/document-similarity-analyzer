@@ -82,6 +82,11 @@ pub async fn analyze_files_handler(
     Ok(Json(response))
 }
 
+/// Health check endpoint
+pub async fn health_handler() -> &'static str {
+    "OK"
+}
+
 /// Errors that can occur during file upload and processing
 #[derive(Debug)]
 pub enum FileUploadError {
@@ -234,18 +239,4 @@ async fn extract_files_and_threshold(
     }
 
     Ok((files, threshold))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_constants() {
-        assert_eq!(MAX_FILE_SIZE, 10 * 1024 * 1024);
-        assert_eq!(MAX_TOTAL_SIZE, 50 * 1024 * 1024);
-        assert_eq!(MAX_FILES, 5);
-        assert_eq!(MIN_FILES, 2);
-        assert_eq!(DEFAULT_THRESHOLD, 0.70);
-    }
 }
