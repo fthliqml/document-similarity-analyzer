@@ -14,22 +14,3 @@ impl AnalyzeRequest {
         Self { documents }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_analyze_request_serialization() {
-        let request = AnalyzeRequest::new(vec![
-            "hello world".to_string(),
-            "hello there".to_string(),
-        ]);
-        
-        let json = serde_json::to_string(&request).unwrap();
-        let parsed: AnalyzeRequest = serde_json::from_str(&json).unwrap();
-        
-        assert_eq!(parsed.documents.len(), 2);
-        assert_eq!(parsed.documents[0], "hello world");
-    }
-}

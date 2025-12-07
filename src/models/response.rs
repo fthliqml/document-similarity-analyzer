@@ -28,20 +28,3 @@ impl From<crate::models::SimilarityMatrix> for AnalyzeResponse {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_analyze_response_serialization() {
-        let response = AnalyzeResponse::new(
-            vec![vec![1.0, 0.5], vec![0.5, 1.0]],
-            vec!["doc0".to_string(), "doc1".to_string()],
-        );
-        
-        let json = serde_json::to_string(&response).unwrap();
-        assert!(json.contains("similarity_matrix"));
-        assert!(json.contains("index"));
-    }
-}

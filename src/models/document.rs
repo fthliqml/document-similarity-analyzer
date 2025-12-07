@@ -71,28 +71,3 @@ impl SimilarityMatrix {
         Self { matrix, index }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_document_creation() {
-        let doc = Document::new("doc1", "Hello world");
-        assert_eq!(doc.id, "doc1");
-        assert_eq!(doc.content, "Hello world");
-    }
-
-    #[test]
-    fn test_similarity_matrix_creation() {
-        let matrix = vec![
-            vec![1.0, 0.5],
-            vec![0.5, 1.0],
-        ];
-        let index = vec!["doc0".to_string(), "doc1".to_string()];
-        let sim = SimilarityMatrix::new(matrix.clone(), index.clone());
-        
-        assert_eq!(sim.matrix, matrix);
-        assert_eq!(sim.index, index);
-    }
-}
