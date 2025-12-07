@@ -4,23 +4,6 @@ use std::collections::HashMap;
 
 /// Computes Inverse Document Frequency (IDF) across all documents.
 /// Uses smoothed IDF: IDF = log((N + 1) / (df + 1)) + 1
-/// This prevents division by zero and ensures non-zero IDF values.
-///
-/// # Arguments
-/// * `tfs` - Slice of Term Frequency maps, one per document
-///
-/// # Returns
-/// A HashMap mapping each term to its IDF value
-///
-/// # Example
-/// ```
-/// use document_similarity_analyzer::core::compute_idf;
-/// use std::collections::HashMap;
-///
-/// let tf1: HashMap<String, f32> = [("hello".to_string(), 0.5)].into_iter().collect();
-/// let tf2: HashMap<String, f32> = [("world".to_string(), 0.5)].into_iter().collect();
-/// let idf = compute_idf(&[tf1, tf2]);
-/// ```
 pub fn compute_idf(tfs: &[HashMap<String, f32>]) -> HashMap<String, f32> {
     if tfs.is_empty() {
         return HashMap::new();
