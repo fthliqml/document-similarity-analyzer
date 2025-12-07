@@ -4,9 +4,16 @@
 
 REST API untuk analisis kesamaan dokumen berbasis kalimat menggunakan TF-IDF dan Cosine Similarity. Sistem ini mengekstrak teks dari berbagai format file (PDF, DOCX, TXT), memecah menjadi kalimat, dan menghitung similarity antar dokumen pada level kalimat.
 
+**Fitur Utama:**
+
+- **Threshold Fleksibel:** Atur sensitivitas deteksi similarity (0.0-1.0) sesuai kebutuhan
+- **Multi-format Support:** PDF, DOCX, dan TXT
+- **Sentence-level Analysis:** Analisis per kalimat, bukan per kata
+- **Parallel Processing:** Optimasi performa dengan Rayon
+
 **Base URL:** `http://localhost:3000`
 
-**Version:** 1.0.0
+**Version:** 2.0.0
 
 ---
 
@@ -61,10 +68,10 @@ Analyze sentence-level similarity across multiple documents.
 
 **Parameters:**
 
-| Parameter   | Type   | Required | Description                                   |
-| ----------- | ------ | -------- | --------------------------------------------- |
-| `files`     | File[] | Yes      | 2-5 document files (PDF, DOCX, or TXT)        |
-| `threshold` | Float  | No       | Similarity threshold (0.0-1.0), default: 0.70 |
+| Parameter   | Type   | Required | Description                                                                                                                                                                             |
+| ----------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `files`     | File[] | Yes      | 2-5 document files (PDF, DOCX, or TXT)                                                                                                                                                  |
+| `threshold` | Float  | No       | **Similarity threshold (0.0-1.0)** - Filter untuk menentukan pasangan kalimat yang dianggap mirip. Default: 0.70. Nilai lebih tinggi = lebih ketat, nilai lebih rendah = lebih longgar. |
 
 **File Requirements:**
 
@@ -74,14 +81,33 @@ Analyze sentence-level similarity across multiple documents.
 - **Maximum total size:** 50 MB
 - **Supported formats:** PDF (.pdf), Word (.docx), Text (.txt)
 
-**Request Example:**
+**Request Examples:**
+
+**Ketat (High Precision) - Threshold 0.85:**
 
 ```bash
 curl -X POST http://localhost:3000/api/analyze \
   -F "files=@research_paper.pdf" \
   -F "files=@reference_1.docx" \
-  -F "files=@reference_2.txt" \
-  -F "threshold=0.75"
+  -F "threshold=0.85"
+```
+
+**Standar (Balanced) - Threshold 0.70 (default):**
+
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@thesis.pdf" \
+  -F "files=@reference.docx"
+```
+
+**Longgar (High Recall) - Threshold 0.50:**
+
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@document1.txt" \
+  -F "files=@document2.txt" \
+  -F "files=@document3.txt" \
+  -F "threshold=0.50"
 ```
 
 ---
@@ -98,23 +124,27 @@ curl -X POST http://localhost:3000/api/analyze \
 {
   "metadata": {
     "documents_count": 3,
-    "total_sentences": 264,
-    "processing_time_ms": 175,
+    "total_sentences": 118,
+    "processing_time_ms": 84,
     "threshold": 0.7
   },
   "matches": [
     {
       "source_doc": "research_paper.pdf",
       "source_sentence_index": 14,
+      "source_sentence": "Machine learning algorithms can analyze vast amounts of data to identify patterns.",
       "target_doc": "reference_1.docx",
       "target_sentence_index": 9,
+      "target_sentence": "Machine learning techniques analyze large datasets to discover hidden patterns.",
       "similarity": 0.9143
     },
     {
       "source_doc": "research_paper.pdf",
       "source_sentence_index": 23,
+      "source_sentence": "Deep neural networks have revolutionized artificial intelligence applications.",
       "target_doc": "reference_2.txt",
       "target_sentence_index": 5,
+      "target_sentence": "Deep learning networks have transformed AI systems and capabilities.",
       "similarity": 0.8721
     }
   ],
@@ -122,17 +152,17 @@ curl -X POST http://localhost:3000/api/analyze \
     {
       "docA": "research_paper.pdf",
       "docB": "reference_1.docx",
-      "score": 0.7834
+      "score": 0.0458
     },
     {
       "docA": "research_paper.pdf",
       "docB": "reference_2.txt",
-      "score": 0.6512
+      "score": 0.0312
     },
     {
       "docA": "reference_1.docx",
       "docB": "reference_2.txt",
-      "score": 0.4231
+      "score": 0.0189
     }
   ]
 }
@@ -142,23 +172,25 @@ curl -X POST http://localhost:3000/api/analyze \
 
 #### `metadata` Object
 
-| Field                | Type    | Description                                    |
-| -------------------- | ------- | ---------------------------------------------- |
-| `documents_count`    | Integer | Total number of documents analyzed             |
-| `total_sentences`    | Integer | Total number of sentences across all documents |
-| `processing_time_ms` | Integer | Processing time in milliseconds                |
-| `threshold`          | Float   | Similarity threshold used for filtering        |
+| Field                | Type    | Description                                                                               |
+| -------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `documents_count`    | Integer | Total number of documents analyzed                                                        |
+| `total_sentences`    | Integer | Total number of sentences across all documents                                            |
+| `processing_time_ms` | Integer | Processing time in milliseconds                                                           |
+| `threshold`          | Float   | **Similarity threshold used** - Menentukan batas minimum similarity untuk `matches` array |
 
 #### `matches` Array
 
-Contains sentence pairs that exceed the similarity threshold, sorted by similarity score (descending).
+Contains **hanya pasangan kalimat yang similarity-nya ≥ threshold**, diurutkan berdasarkan similarity score (descending). Array ini bisa kosong jika tidak ada pasangan yang memenuhi threshold.
 
 | Field                   | Type    | Description                                     |
 | ----------------------- | ------- | ----------------------------------------------- |
 | `source_doc`            | String  | Filename of the source document                 |
 | `source_sentence_index` | Integer | Zero-based index of sentence in source document |
+| `source_sentence`       | String  | **Full text of the source sentence**            |
 | `target_doc`            | String  | Filename of the target document                 |
 | `target_sentence_index` | Integer | Zero-based index of sentence in target document |
+| `target_sentence`       | String  | **Full text of the target sentence**            |
 | `similarity`            | Float   | Cosine similarity score (0.0-1.0)               |
 
 #### `global_similarity` Array
@@ -331,8 +363,10 @@ curl -X POST http://localhost:3000/api/analyze \
     {
       "source_doc": "document1.txt",
       "source_sentence_index": 0,
+      "source_sentence": "Artificial intelligence is transforming the world in unprecedented ways.",
       "target_doc": "document2.txt",
       "target_sentence_index": 0,
+      "target_sentence": "Artificial intelligence is transforming the world in unprecedented ways.",
       "similarity": 1.0
     }
   ],
@@ -340,7 +374,7 @@ curl -X POST http://localhost:3000/api/analyze \
     {
       "docA": "document1.txt",
       "docB": "document2.txt",
-      "score": 0.3421
+      "score": 0.0342
     }
   ]
 }
@@ -374,15 +408,19 @@ curl -X POST http://localhost:3000/api/analyze \
     {
       "source_doc": "thesis.pdf",
       "source_sentence_index": 45,
+      "source_sentence": "Convolutional neural networks excel at processing visual information and image data.",
       "target_doc": "reference.docx",
       "target_sentence_index": 23,
+      "target_sentence": "Convolutional neural networks are designed for processing visual information.",
       "similarity": 0.9567
     },
     {
       "source_doc": "thesis.pdf",
       "source_sentence_index": 67,
+      "source_sentence": "Reinforcement learning enables agents to learn optimal behaviors through trial and error.",
       "target_doc": "paper.txt",
       "target_sentence_index": 12,
+      "target_sentence": "Reinforcement learning allows agents to learn optimal strategies through interaction.",
       "similarity": 0.8821
     }
   ],
@@ -390,17 +428,17 @@ curl -X POST http://localhost:3000/api/analyze \
     {
       "docA": "thesis.pdf",
       "docB": "reference.docx",
-      "score": 0.6234
+      "score": 0.0523
     },
     {
       "docA": "thesis.pdf",
       "docB": "paper.txt",
-      "score": 0.5123
+      "score": 0.0412
     },
     {
       "docA": "reference.docx",
       "docB": "paper.txt",
-      "score": 0.4567
+      "score": 0.0267
     }
   ]
 }
@@ -534,9 +572,11 @@ axios
 
 ### Processing Constraints
 
-- **Sentence splitting:** Uses regex pattern `[.!?]\s+`
+- **Sentence splitting:** Uses regex pattern `[.!?](?:\s+|$)`
 - **Cross-document only:** Only compares sentences between different documents (no intra-document comparison)
-- **Threshold range:** Must be between 0.0 and 1.0
+- **Threshold range:** Must be between 0.0 and 1.0 (validated, akan error jika di luar range)
+- **Threshold filtering:** Hanya sentence pairs dengan similarity ≥ threshold yang masuk `matches` array
+- **Empty matches:** Jika threshold terlalu tinggi, `matches` array bisa kosong (tidak error, tapi `[]`)
 - **Text extraction:** Requires valid/readable file formats
 
 ### Performance Notes
@@ -555,15 +595,15 @@ axios
 ### TF-IDF Pipeline
 
 1. **Text Extraction:** Extract raw text from PDF/DOCX/TXT files
-2. **Sentence Splitting:** Split text into sentences using regex
+2. **Sentence Splitting:** Split text into sentences using regex `[.!?](?:\s+|$)`
 3. **Normalization:** Lowercase, trim whitespace, remove punctuation
 4. **Tokenization:** Split sentences into words
-5. **TF Computation:** Calculate Term Frequency for each sentence
+5. **TF Computation:** Calculate Term Frequency for each sentence (per-sentence TF)
 6. **IDF Computation:** Calculate Inverse Document Frequency globally across all sentences
-7. **TF-IDF Vectors:** Compute TF-IDF vector for each sentence
-8. **Similarity Calculation:** Calculate Cosine Similarity between sentence pairs
-9. **Filtering:** Keep only matches above threshold
-10. **Global Scoring:** Compute average similarity between document pairs
+7. **TF-IDF Vectors:** Compute TF-IDF vector for each sentence (HashMap<Word, TF-IDF>)
+8. **Similarity Calculation:** Calculate Cosine Similarity between sentence pairs (cross-document)
+9. **🎯 Threshold Filtering:** **Keep only matches where similarity ≥ threshold** (configurable, default 0.70)
+10. **Global Scoring:** Compute average similarity between document pairs from filtered matches
 
 ### Similarity Score Interpretation
 
@@ -574,6 +614,25 @@ axios
 | 0.60 - 0.74 | Moderate Similarity (some common content)                 |
 | 0.40 - 0.59 | Low Similarity (minor overlap)                            |
 | 0.00 - 0.39 | Very Low Similarity (minimal or no overlap)               |
+
+### Threshold Tuning Guide
+
+**Memilih Threshold yang Tepat:**
+
+| Use Case                          | Recommended Threshold | Explanation                                                                   |
+| --------------------------------- | --------------------- | ----------------------------------------------------------------------------- |
+| **Plagiarism Detection (Ketat)**  | 0.85 - 0.95           | Hanya tangkap kalimat yang sangat mirip/identik. Minim false positive.        |
+| **Similarity Check (Standar)**    | 0.70 - 0.80           | Balanced antara precision dan recall. Tangkap similarity yang signifikan.     |
+| **Content Exploration (Longgar)** | 0.50 - 0.65           | Tangkap lebih banyak kemungkinan similarity. Lebih banyak hasil untuk review. |
+| **Research/Discovery**            | 0.30 - 0.50           | Eksplorasi konten dengan topik/kata kunci yang sama. Banyak false positive.   |
+
+**Tips:**
+
+- Start dengan threshold **0.70** untuk kebanyakan use case
+- Jika terlalu banyak false positive, **naikkan** threshold (misal ke 0.80)
+- Jika terlalu sedikit hasil/missed matches, **turunkan** threshold (misal ke 0.60)
+- Untuk plagiarism check, gunakan threshold **≥ 0.85**
+- Threshold **< 0.50** tidak disarankan kecuali untuk exploratory analysis
 
 ---
 
@@ -619,4 +678,4 @@ For issues, feature requests, or contributions:
 ---
 
 **Last Updated:** December 7, 2025  
-**API Version:** 1.0.0
+**API Version:** 2.0.0 (Sentence-level with Flexible Threshold)

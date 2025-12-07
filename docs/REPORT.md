@@ -1,13 +1,13 @@
 # Document Similarity Analyzer
 
-_Pendekatan Pemrograman Fungsional dengan Rust_  
-**Penulis:** Muhammad Fatihul Iqmal, Awal Ramadhani, Vivian Marsyanda, Muhammad ‘Aaqil S., Muhammad Arsyad A., Cinta Satilla
+_Sentence-Level Plagiarism Detection dengan Pemrograman Fungsional menggunakan Rust_  
+**Penulis:** Muhammad Fatihul Iqmal, Awal Ramadhani, Vivian Marsyanda, Muhammad 'Aaqil S., Muhammad Arsyad A., Cinta Satilla
 
 ---
 
 ## Abstrak
 
-Document Similarity Analyzer adalah layanan backend berbasis Rust yang dirancang untuk menganalisis tingkat kesamaan antar dokumen teks. Proyek ini mengimplementasikan algoritma **TF-IDF (Term Frequency-Inverse Document Frequency)** dan **Cosine Similarity** untuk mengukur kemiripan semantik dokumen. Dengan memanfaatkan framework **Axum** untuk HTTP server dan **Rayon** untuk parallel processing, aplikasi ini mampu memproses hingga 100 dokumen secara bersamaan dengan performa tinggi. Seluruh core logic dibangun menggunakan prinsip **pemrograman fungsional** — pure functions, immutability, dan transformasi data tanpa side effects — sehingga menghasilkan kode yang mudah diuji, diprediksi, dan dimaintain.
+Document Similarity Analyzer adalah layanan backend berbasis Rust untuk deteksi plagiarisme dan analisis kesamaan dokumen pada **level kalimat**. Berbeda dengan sistem tradisional yang menganalisis kesamaan per dokumen, sistem ini mengimplementasikan **sentence-level TF-IDF** dan **Cosine Similarity** untuk mengidentifikasi kalimat-kalimat spesifik yang mirip antar dokumen. Aplikasi ini mendukung multi-format file (PDF, DOCX, TXT) dengan upload maksimal 5 file, menggunakan **Axum** untuk HTTP server dan **Rayon** untuk parallel processing. Threshold similarity yang dapat dikonfigurasi (default 0.70) memungkinkan fleksibilitas antara precision dan recall. Seluruh core logic dibangun dengan prinsip **pemrograman fungsional** — pure functions, immutability, dan data transformations — menghasilkan kode yang robust, testable, dan maintainable.
 
 ---
 
@@ -15,41 +15,54 @@ Document Similarity Analyzer adalah layanan backend berbasis Rust yang dirancang
 
 ### Latar Belakang Masalah
 
-Di era digital saat ini, volume dokumen teks yang perlu dianalisis semakin meningkat. Kebutuhan untuk mendeteksi kemiripan dokumen muncul di berbagai bidang:
+Di era digital, kebutuhan untuk mendeteksi plagiarisme dan menganalisis kesamaan dokumen semakin krusial:
 
-- **Akademik**: Deteksi plagiarisme pada karya tulis
-- **Bisnis**: Pengelompokan dokumen serupa untuk efisiensi
-- **Penelitian**: Analisis corpus teks dalam jumlah besar
+- **Akademik**: Deteksi plagiarisme pada paper, thesis, dan tugas mahasiswa
+- **Penelitian**: Identifikasi duplikasi konten dalam publikasi ilmiah
+- **Legal**: Analisis kemiripan dokumen dalam kasus hukum
+- **Content Moderation**: Deteksi duplikasi konten online
 
-Tantangan utama adalah bagaimana memproses banyak dokumen secara efisien sambil mempertahankan akurasi perhitungan kesamaan.
+**Masalah Sistem Tradisional:**
+
+- Analisis per dokumen hanya memberikan skor global (misal: "Dokumen A 78% mirip dengan Dokumen B")
+- Tidak bisa menunjukkan **bagian mana yang mirip**
+- Sulit untuk memberikan evidence konkret untuk plagiarisme
+
+**Solusi: Sentence-Level Analysis**
+
+- Identifikasi **kalimat spesifik** yang mirip antar dokumen
+- Memberikan index sentence untuk highlighting di frontend
+- Support multiple file formats (PDF, DOCX, TXT)
 
 ### Mengapa Memilih Rust?
 
-Rust dipilih karena beberapa keunggulan:
+Rust dipilih karena keunggulan:
 
-1. **Memory Safety** — Tanpa garbage collector, namun aman dari memory leaks
-2. **Zero-Cost Abstractions** — Abstraksi tingkat tinggi tanpa overhead runtime
-3. **Concurrency** — Parallel processing yang aman dengan jaminan compile-time
-4. **Performance** — Kecepatan setara C/C++ dengan keamanan modern
+1. **Memory Safety** — Zero-cost abstractions tanpa garbage collector
+2. **Performance** — Kecepatan setara C/C++ dengan type safety modern
+3. **Concurrency** — Parallel processing yang aman dengan compile-time guarantees
+4. **Ecosystem** — Library berkualitas tinggi (Axum, Rayon, Tokio)
 
 ### Mengapa Pemrograman Fungsional?
 
-Prinsip pemrograman fungsional sangat cocok untuk pipeline pemrosesan data:
+Prinsip fungsional sangat cocok untuk data processing pipeline:
 
-- **Pure Functions** — Fungsi tanpa side effects, hasil hanya bergantung pada input
-- **Immutability** — Data tidak diubah, melainkan ditransformasi menjadi data baru
-- **Composability** — Fungsi-fungsi kecil dapat digabungkan menjadi pipeline kompleks
-- **Testability** — Pure functions sangat mudah diuji karena deterministik
-- **Parallelization** — Pure functions dengan immutable data sangat mudah diparalelkan karena tidak ada shared mutable state, sehingga aman dari race conditions
+- **Pure Functions** — Output hanya bergantung pada input, no side effects
+- **Immutability** — Data tidak dimutasi, melainkan ditransformasi
+- **Composability** — Fungsi kecil dapat digabungkan menjadi pipeline kompleks
+- **Testability** — Pure functions mudah ditest karena deterministik
+- **Parallelization** — Immutable data aman untuk parallel processing tanpa locks
 
 ### Keunikan Solusi
 
 Proyek ini menggabungkan:
 
-- Pipeline fungsional murni untuk pemrosesan teks
-- Parallel processing otomatis dengan Rayon
-- REST API yang stateless dan mudah diintegrasikan
-- Arsitektur modular yang memisahkan core logic dari I/O
+- **Sentence-level granularity** untuk deteksi plagiarisme presisi
+- Pipeline fungsional murni untuk text processing
+- **Multipart file upload** dengan validasi komprehensif
+- **Configurable threshold** untuk fleksibilitas use case
+- REST API stateless yang mudah diintegrasikan
+- Response yang include **sentence text** untuk frontend highlighting
 
 ---
 
@@ -57,660 +70,162 @@ Proyek ini menggabungkan:
 
 ### Technology Stack
 
-| Teknologi      | Versi        | Fungsi                             |
-| -------------- | ------------ | ---------------------------------- |
-| **Rust**       | Edition 2021 | Bahasa pemrograman utama           |
-| **Axum**       | 0.7          | HTTP web framework                 |
-| **Tokio**      | 1.0          | Async runtime                      |
-| **Rayon**      | 1.8          | Parallel data processing           |
-| **Serde**      | 1.0          | Serialization/deserialization JSON |
-| **thiserror**  | 1.0          | Custom error types                 |
-| **anyhow**     | 1.0          | Error handling                     |
-| **tower-http** | 0.5          | HTTP middleware (CORS)             |
-| **tracing**    | 0.1          | Structured logging                 |
+| Teknologi       | Versi        | Fungsi                             |
+| --------------- | ------------ | ---------------------------------- |
+| **Rust**        | Edition 2021 | Bahasa pemrograman utama           |
+| **Axum**        | 0.7          | HTTP web framework                 |
+| **Tokio**       | 1.0          | Async runtime                      |
+| **Rayon**       | 1.8          | Parallel data processing           |
+| **Serde**       | 1.0          | Serialization/deserialization JSON |
+| **pdf-extract** | 0.7          | PDF text extraction                |
+| **docx-rs**     | 0.4          | DOCX text extraction               |
+| **regex**       | 1.10         | Sentence splitting                 |
+| **tower-http**  | 0.5          | HTTP middleware (CORS, multipart)  |
+| **tracing**     | 0.1          | Structured logging                 |
 
 ### Konsep Algoritma
 
-#### TF-IDF (Term Frequency-Inverse Document Frequency)
+#### Sentence-Level TF-IDF
 
-TF-IDF adalah teknik statistik untuk mengevaluasi pentingnya sebuah kata dalam dokumen relatif terhadap corpus (kumpulan dokumen).
+**Perbedaan dengan TF-IDF Tradisional:**
 
-**Term Frequency (TF):**
-$$TF(t, d) = \frac{\text{jumlah kemunculan term } t \text{ dalam dokumen } d}{\text{total kata dalam dokumen } d}$$
+| Aspek              | TF-IDF Tradisional                   | Sentence-Level TF-IDF                    |
+| ------------------ | ------------------------------------ | ---------------------------------------- |
+| **Granularity**    | Per dokumen                          | **Per kalimat**                          |
+| **TF Calculation** | Term count / total words in document | **Term count / total words in sentence** |
+| **IDF Scope**      | Document frequency                   | **Sentence frequency (global)**          |
+| **Output**         | Document similarity score            | **Sentence pairs with similarity**       |
+| **Use Case**       | General similarity                   | **Plagiarism detection**                 |
 
-**Inverse Document Frequency (IDF):**
-$$IDF(t) = \log\left(\frac{N + 1}{df(t) + 1}\right) + 1$$
+**Term Frequency (Per Sentence):**
+$$TF(t, s) = \frac{\text{count of term } t \text{ in sentence } s}{\text{total words in sentence } s}$$
+
+**Inverse Document Frequency (Global Sentences):**
+$$IDF(t) = \log\left(\frac{N_{sentences} + 1}{df(t) + 1}\right) + 1$$
 
 Dimana:
 
-- $N$ = total jumlah dokumen
-- $df(t)$ = jumlah dokumen yang mengandung term $t$
-- Formula smoothed IDF digunakan untuk menghindari division by zero
+- $N_{sentences}$ = total jumlah kalimat dari **semua dokumen**
+- $df(t)$ = jumlah kalimat yang mengandung term $t$
 
 **TF-IDF Score:**
-$$TF\text{-}IDF(t, d) = TF(t, d) \times IDF(t)$$
+$$TF\text{-}IDF(t, s) = TF(t, s) \times IDF(t)$$
 
 #### Cosine Similarity
 
-Cosine Similarity mengukur sudut antara dua vektor dalam ruang multidimensi:
+Mengukur sudut antara dua vektor TF-IDF:
 
-$$\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|} = \frac{\sum_{i=1}^{n} A_i \times B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \times \sqrt{\sum_{i=1}^{n} B_i^2}}$$
+$$\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|}$$
 
-Hasil:
+**Hasil:**
 
-- **1.0** = Dokumen identik
-- **0.0** = Dokumen tidak memiliki kesamaan
-- **0.0 - 1.0** = Tingkat kesamaan parsial
+- **≥ 0.85** = Very High Similarity (likely plagiarism)
+- **0.70 - 0.84** = High Similarity (significant overlap)
+- **0.50 - 0.69** = Moderate Similarity
+- **< 0.50** = Low Similarity
+
+#### Threshold Filtering
+
+Sistem menggunakan **configurable threshold** (default 0.70):
+
+- Hanya sentence pairs dengan similarity ≥ threshold yang disimpan
+- Mengurangi false positives
+- User dapat adjust sesuai kebutuhan (ketat vs longgar)
+
+#### Global Similarity Score
+
+Dihitung sebagai **average dari sentence matches**:
+$$\text{Global Similarity}(Doc_A, Doc_B) = \frac{\sum \text{similarity scores}}{|\text{matches}|}$$
 
 #### Parallel Processing dengan Rayon
 
-Proyek ini mengimplementasikan **parallel processing** menggunakan library **Rayon** untuk meningkatkan performa pada CPU multi-core. Rayon memungkinkan paralelisasi dengan cara yang deklaratif dan aman.
+Sistem menggunakan **Rayon** untuk parallel processing pada multi-core CPU:
 
-**Konsep Utama:**
-
-- **Data Parallelism** — Operasi yang sama diterapkan ke banyak data secara bersamaan
-- **Work Stealing** — Rayon secara otomatis mendistribusikan beban kerja antar thread
-- **Zero-Cost Abstraction** — Tidak ada overhead runtime yang signifikan
-
-**Alur Parallel Processing dalam Pipeline:**
+**Pipeline Parallel:**
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-├─────────────────────────────────────────────────────────────┤
-│  Doc1 ──► Normalize ──► Tokenize ──► TF                    │
-│  Doc2 ──► Normalize ──► Tokenize ──► TF    (bersamaan)     │
-│  Doc3 ──► Normalize ──► Tokenize ──► TF                    │
-│  ...                                                        │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    SINGLE THREAD                            │
-│              Compute IDF (butuh semua TF)                   │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-│  TF1 + IDF ──► Vector1                                     │
-│  TF2 + IDF ──► Vector2    (bersamaan)                      │
-│  TF3 + IDF ──► Vector3                                     │
-│  ...                                                        │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PARALLEL (Rayon)                         │
-│  Row 0: [sim(0,0), sim(0,1), sim(0,2), ...]                │
-│  Row 1: [sim(1,0), sim(1,1), sim(1,2), ...]  (bersamaan)   │
-│  Row 2: [sim(2,0), sim(2,1), sim(2,2), ...]                │
-│  ...                                                        │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Implementasi Parallel di Kode:**
-
-| Lokasi        | Operasi                       | Method Rayon            |
-| ------------- | ----------------------------- | ----------------------- |
-| `pipeline.rs` | Normalisasi + Tokenisasi + TF | `par_iter().map()`      |
-| `pipeline.rs` | Vektorisasi TF-IDF            | `par_iter().map()`      |
-| `matrix.rs`   | Perhitungan Similarity Matrix | `into_par_iter().map()` |
-
-**Keuntungan Parallel Processing:**
-
-1. **Skalabilitas** — Performa meningkat linear dengan jumlah CPU cores
-2. **Efisiensi** — Memanfaatkan semua cores yang tersedia secara otomatis
-3. **Kemudahan** — Hanya perlu mengubah `.iter()` menjadi `.par_iter()`
-4. **Thread Safety** — Rayon menjamin tidak ada data race karena menggunakan immutable data
-
----
-
-## Source Code dan Penjelasan
-
-### Struktur Proyek
-
-```
-src/
-├── api/                    # Layer HTTP API
-│   ├── mod.rs             # Module exports
-│   ├── error.rs           # Custom error types
-│   ├── handlers.rs        # Request handlers
-│   └── server.rs          # Server configuration
-├── core/                   # Core logic (Pure Functions)
-│   ├── mod.rs             # Module exports
-│   ├── normalize.rs       # Text normalization
-│   ├── tokenize.rs        # Tokenization
-│   ├── tf.rs              # Term Frequency
-│   ├── idf.rs             # Inverse Document Frequency
-│   ├── vectorize.rs       # TF-IDF vectorization
-│   ├── similarity.rs      # Cosine similarity
-│   ├── matrix.rs          # Similarity matrix
-│   └── pipeline.rs        # Processing pipeline
-├── models/                 # Data structures
-│   ├── mod.rs             # Module exports
-│   ├── document.rs        # Document & SimilarityMatrix
-│   ├── request.rs         # API request model
-│   └── response.rs        # API response model
-├── lib.rs                  # Library exports
-└── main.rs                 # Entry point
-```
-
-### 1. Text Normalization (`core/normalize.rs`)
-
-Fungsi pure untuk menormalisasi teks input:
-
-````rust
-/// Menormalisasi teks dengan mengubah ke lowercase, menghapus punctuation,
-/// dan merapikan whitespace.
-///
-/// # Contoh
-/// ```
-/// use document_similarity_analyzer::core::normalize_text;
-///
-/// let result = normalize_text("Hello, World!");
-/// assert_eq!(result, "hello world");
-/// ```
-pub fn normalize_text(text: &str) -> String {
-    text.chars()
-        .map(|c| {
-            if c.is_ascii_punctuation() {
-                ' '  // Ganti punctuation dengan spasi
-            } else {
-                c.to_ascii_lowercase()  // Ubah ke lowercase
-            }
-        })
-        .collect::<String>()
-        .split_whitespace()  // Hapus multiple whitespace
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-````
-
-**Prinsip Fungsional yang Diterapkan:**
-
-- ✅ **Pure Function** — Output hanya bergantung pada input, tanpa side effects
-- ✅ **Immutability** — String asli tidak dimodifikasi, menghasilkan String baru
-- ✅ **Method Chaining** — Transformasi data melalui rangkaian method calls
-
-### 2. Tokenization (`core/tokenize.rs`)
-
-Memecah teks menjadi kata-kata individual:
-
-````rust
-/// Memecah teks menjadi vektor token (kata-kata).
-///
-/// # Contoh
-/// ```
-/// use document_similarity_analyzer::core::tokenize;
-///
-/// let tokens = tokenize("hello world");
-/// assert_eq!(tokens, vec!["hello", "world"]);
-/// ```
-pub fn tokenize(text: &str) -> Vec<String> {
-    text.split_whitespace()
-        .filter(|s| !s.is_empty())
-        .map(String::from)
-        .collect()
-}
-````
-
-**Prinsip Fungsional:**
-
-- ✅ **Higher-Order Functions** — Menggunakan `filter` dan `map`
-- ✅ **Lazy Evaluation** — Iterator dievaluasi saat `collect()` dipanggil
-
-### 3. Term Frequency (`core/tf.rs`)
-
-Menghitung frekuensi setiap kata dalam dokumen:
-
-```rust
-use std::collections::HashMap;
-
-/// Menghitung Term Frequency untuk setiap token dalam dokumen.
-/// TF = count(term) / total_terms
-pub fn compute_tf(tokens: &[String]) -> HashMap<String, f32> {
-    if tokens.is_empty() {
-        return HashMap::new();
-    }
-
-    let total = tokens.len() as f32;
-
-    // Hitung kemunculan setiap token
-    let mut counts: HashMap<String, f32> = HashMap::new();
-    for token in tokens {
-        *counts.entry(token.clone()).or_insert(0.0) += 1.0;
-    }
-
-    // Normalisasi dengan total tokens
-    counts
-        .into_iter()
-        .map(|(term, count)| (term, count / total))
-        .collect()
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Transformasi Data** — Input tokens ditransformasi menjadi HashMap frekuensi
-- ✅ **No Side Effects** — Tidak mengubah input, menghasilkan struktur data baru
-
-### 4. Inverse Document Frequency (`core/idf.rs`)
-
-Menghitung bobot global setiap term di seluruh corpus:
-
-```rust
-use std::collections::HashMap;
-
-/// Menghitung IDF untuk semua term dalam corpus.
-/// Menggunakan smoothed IDF: log((N+1)/(df+1)) + 1
-pub fn compute_idf(term_frequencies: &[HashMap<String, f32>]) -> HashMap<String, f32> {
-    let n = term_frequencies.len() as f32;
-
-    // Hitung document frequency untuk setiap term
-    let mut doc_freq: HashMap<String, f32> = HashMap::new();
-    for tf in term_frequencies {
-        for term in tf.keys() {
-            *doc_freq.entry(term.clone()).or_insert(0.0) += 1.0;
-        }
-    }
-
-    // Hitung IDF menggunakan smoothed formula
-    doc_freq
-        .into_iter()
-        .map(|(term, df)| {
-            let idf = ((n + 1.0) / (df + 1.0)).ln() + 1.0;
-            (term, idf)
-        })
-        .collect()
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Aggregation** — Menggabungkan informasi dari multiple dokumen
-- ✅ **Mathematical Transformation** — Menerapkan formula matematika murni
-
-### 5. TF-IDF Vectorization (`core/vectorize.rs`)
-
-Mengubah dokumen menjadi vektor numerik:
-
-```rust
-use std::collections::HashMap;
-
-/// Mengubah TF dan IDF menjadi vektor TF-IDF.
-pub fn vectorize(
-    tf: &HashMap<String, f32>,
-    idf: &HashMap<String, f32>,
-    vocabulary: &[String],
-) -> Vec<f32> {
-    vocabulary
-        .iter()
-        .map(|term| {
-            let tf_value = tf.get(term).copied().unwrap_or(0.0);
-            let idf_value = idf.get(term).copied().unwrap_or(0.0);
-            tf_value * idf_value
-        })
-        .collect()
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Mapping** — Setiap term di-map ke nilai TF-IDF
-- ✅ **Consistent Output** — Vektor memiliki panjang tetap sesuai vocabulary
-
-### 6. Cosine Similarity (`core/similarity.rs`)
-
-Menghitung kesamaan antara dua vektor:
-
-```rust
-/// Menghitung Cosine Similarity antara dua vektor.
-/// Mengembalikan nilai antara 0.0 (tidak mirip) dan 1.0 (identik).
-pub fn cosine_similarity(vec_a: &[f32], vec_b: &[f32]) -> f32 {
-    let dot_product: f32 = vec_a.iter()
-        .zip(vec_b.iter())
-        .map(|(a, b)| a * b)
-        .sum();
-
-    let magnitude_a: f32 = vec_a.iter().map(|x| x * x).sum::<f32>().sqrt();
-    let magnitude_b: f32 = vec_b.iter().map(|x| x * x).sum::<f32>().sqrt();
-
-    if magnitude_a == 0.0 || magnitude_b == 0.0 {
-        return 0.0;  // Handle edge case
-    }
-
-    dot_product / (magnitude_a * magnitude_b)
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Pure Computation** — Kalkulasi matematika murni
-- ✅ **Iterator Combinators** — Menggunakan `zip`, `map`, dan `sum`
-
-### 7. Similarity Matrix (`core/matrix.rs`)
-
-Membangun matriks kesamaan menggunakan parallel processing:
-
-```rust
-use rayon::prelude::*;
-use super::cosine_similarity;
-
-/// Menghitung matriks kesamaan NxN secara parallel.
-pub fn compute_similarity_matrix(vectors: &[Vec<f32>]) -> Vec<Vec<f32>> {
-    let n = vectors.len();
-
-    (0..n)
-        .into_par_iter()  // Parallel iteration dengan Rayon
-        .map(|i| {
-            (0..n)
-                .map(|j| {
-                    if i == j {
-                        1.0  // Diagonal selalu 1.0
-                    } else {
-                        cosine_similarity(&vectors[i], &vectors[j])
-                    }
-                })
-                .collect()
-        })
-        .collect()
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Parallel Map** — `par_iter()` memparalelkan komputasi secara otomatis
-- ✅ **Immutable Processing** — Setiap thread bekerja pada data terpisah
-
-### 8. Processing Pipeline (`core/pipeline.rs`)
-
-Menggabungkan semua fungsi menjadi pipeline terintegrasi:
-
-```rust
-use rayon::prelude::*;
-use crate::models::SimilarityMatrix;
-use super::{normalize_text, tokenize, compute_tf, compute_idf, vectorize, compute_similarity_matrix};
-
-/// Pipeline utama untuk menganalisis kesamaan dokumen.
-///
-/// Pipeline:
-/// 1. Normalisasi teks (parallel)
-/// 2. Tokenisasi (parallel)
-/// 3. Hitung Term Frequency (parallel)
-/// 4. Hitung IDF (single thread - butuh semua TF)
-/// 5. Build vocabulary
-/// 6. Vektorisasi TF-IDF (parallel)
-/// 7. Hitung similarity matrix (parallel)
-pub fn analyze_documents(documents: &[String]) -> SimilarityMatrix {
-    // Step 1-3: Parallel processing
-    let term_frequencies: Vec<_> = documents
-        .par_iter()
-        .map(|doc| {
-            let normalized = normalize_text(doc);
-            let tokens = tokenize(&normalized);
-            compute_tf(&tokens)
-        })
-        .collect();
-
-    // Step 4: Compute global IDF
-    let idf = compute_idf(&term_frequencies);
-
-    // Step 5: Build vocabulary
-    let mut vocabulary: Vec<String> = idf.keys().cloned().collect();
-    vocabulary.sort();  // Konsistensi ordering
-
-    // Step 6: Vectorize (parallel)
-    let vectors: Vec<Vec<f32>> = term_frequencies
-        .par_iter()
-        .map(|tf| vectorize(tf, &idf, &vocabulary))
-        .collect();
-
-    // Step 7: Compute similarity matrix (parallel)
-    let matrix = compute_similarity_matrix(&vectors);
-
-    // Generate index labels
-    let index: Vec<String> = (0..documents.len())
-        .map(|i| format!("doc{}", i))
-        .collect();
-
-    SimilarityMatrix { matrix, index }
-}
-```
-
-**Prinsip Fungsional:**
-
-- ✅ **Function Composition** — Fungsi-fungsi kecil digabungkan menjadi pipeline
-- ✅ **Data Flow** — Data mengalir melalui transformasi berurutan
-- ✅ **Parallel Processing** — Rayon menangani paralelisasi secara deklaratif
-
-### 9. Data Models (`models/`)
-
-Struktur data immutable:
-
-```rust
-// models/document.rs
-use serde::{Deserialize, Serialize};
-
-/// Hasil analisis kesamaan dokumen.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimilarityMatrix {
-    /// Matriks kesamaan NxN
-    pub matrix: Vec<Vec<f32>>,
-    /// Label untuk setiap dokumen
-    pub index: Vec<String>,
-}
-
-// models/request.rs
-/// Request body untuk endpoint /analyze
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AnalyzeRequest {
-    pub documents: Vec<String>,
-}
-
-// models/response.rs
-/// Response body dari endpoint /analyze
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AnalyzeResponse {
-    pub similarity_matrix: Vec<Vec<f32>>,
-    pub index: Vec<String>,
-}
-```
-
-### 10. Error Handling (`api/error.rs`)
-
-Custom error types menggunakan thiserror:
-
-```rust
-use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
-use axum::Json;
-use serde_json::json;
-
-#[derive(Debug, thiserror::Error)]
-pub enum AppError {
-    #[error("Terlalu banyak dokumen: {0}, maksimum 100")]
-    TooManyDocuments(usize),
-
-    #[error("Dokumen tidak cukup: {0}, minimum 2")]
-    NotEnoughDocuments(usize),
-
-    #[error("Dokumen kosong pada index {0}")]
-    EmptyDocument(usize),
-
-    #[error("Tidak ada dokumen yang diberikan")]
-    NoDocuments,
-
-    #[error("Dokumen terlalu panjang pada index {0}, maksimum {1} karakter")]
-    DocumentTooLong(usize, usize),
-}
-
-impl IntoResponse for AppError {
-    fn into_response(self) -> Response {
-        let (status, message) = match &self {
-            AppError::TooManyDocuments(_) => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::NotEnoughDocuments(_) => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::EmptyDocument(_) => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::NoDocuments => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::DocumentTooLong(_, _) => (StatusCode::BAD_REQUEST, self.to_string()),
-        };
-
-        let body = Json(json!({ "error": message }));
-        (status, body).into_response()
-    }
-}
-```
-
-### 11. API Handlers (`api/handlers.rs`)
-
-```rust
-use axum::Json;
-use crate::core::analyze_documents;
-use crate::models::{AnalyzeRequest, AnalyzeResponse};
-use super::AppError;
-
-const MAX_DOCUMENTS: usize = 100;
-const MIN_DOCUMENTS: usize = 2;
-
-/// Handler untuk POST /analyze
-pub async fn analyze_handler(
-    Json(payload): Json<AnalyzeRequest>,
-) -> Result<Json<AnalyzeResponse>, AppError> {
-    // Validasi input
-    validate_request(&payload)?;
-
-    // Proses dokumen melalui pipeline
-    let result = analyze_documents(&payload.documents);
-
-    Ok(Json(AnalyzeResponse::from(result)))
-}
-
-/// Validasi request
-pub fn validate_request(request: &AnalyzeRequest) -> Result<(), AppError> {
-    if request.documents.is_empty() {
-        return Err(AppError::NoDocuments);
-    }
-
-    if request.documents.len() < MIN_DOCUMENTS {
-        return Err(AppError::NotEnoughDocuments(request.documents.len()));
-    }
-
-    if request.documents.len() > MAX_DOCUMENTS {
-        return Err(AppError::TooManyDocuments(request.documents.len()));
-    }
-
-    for (i, doc) in request.documents.iter().enumerate() {
-        if doc.trim().is_empty() {
-            return Err(AppError::EmptyDocument(i));
-        }
-    }
-
-    Ok(())
-}
-
-/// Handler untuk GET /health
-pub async fn health_handler() -> &'static str {
-    "OK"
-}
-```
-
-### 12. Server Setup (`api/server.rs`)
-
-```rust
-use axum::{routing::{get, post}, Router};
-use tower_http::cors::{Any, CorsLayer};
-use super::handlers::{analyze_handler, health_handler};
-
-/// Membuat router dengan semua endpoints
-pub fn create_router() -> Router {
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
-
-    Router::new()
-        .route("/health", get(health_handler))
-        .route("/analyze", post(analyze_handler))
-        .layer(cors)
-}
-
-/// Menjalankan server HTTP
-pub async fn run_server(addr: &str) -> std::io::Result<()> {
-    let router = create_router();
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-
-    tracing::info!("Server running on {}", addr);
-
-    axum::serve(listener, router).await?;
-    Ok(())
-}
-```
-
-### 13. Entry Point (`main.rs`)
-
-```rust
-use document_similarity_analyzer::api::run_server;
-use tracing_subscriber;
-
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    // Setup logging
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("document_similarity_analyzer=info".parse().unwrap())
-        )
-        .init();
-
-    // Get port from environment or default to 3000
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
-    let addr = format!("0.0.0.0:{}", port);
-
-    tracing::info!("Starting Document Similarity Analyzer on port {}", port);
-
-    run_server(&addr).await
-}
+┌────────────────────────────────────────────────┐
+│         PARALLEL (per sentence)                │
+│  Sentence 1 → Normalize → Tokenize → TF       │
+│  Sentence 2 → Normalize → Tokenize → TF       │
+│  Sentence N → Normalize → Tokenize → TF       │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         SINGLE THREAD                          │
+│  Compute Global IDF (needs all TFs)            │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         PARALLEL (per sentence)                │
+│  TF1 + IDF → TF-IDF Vector 1                   │
+│  TF2 + IDF → TF-IDF Vector 2                   │
+│  TFN + IDF → TF-IDF Vector N                   │
+└────────────────────────────────────────────────┘
+                    ↓
+┌────────────────────────────────────────────────┐
+│         PARALLEL (pairwise comparison)         │
+│  Compare all sentence pairs (cross-doc only)   │
+│  Filter by threshold                           │
+│  Sort by similarity                            │
+└────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Screenshot
 
-### 1. Menjalankan Server
-
-![Server Running](screenshots/server_running.png)
+### 1. Running Server
 
 ```bash
-$ cargo run
+$ cargo run --release
    Compiling document-similarity-analyzer v0.1.0
-    Finished dev [unoptimized + debuginfo] target(s) in 5.23s
-     Running `target/debug/document-similarity-analyzer`
-2025-11-30T10:00:00.000000Z  INFO document_similarity_analyzer: Starting Document Similarity Analyzer on port 3000
-2025-11-30T10:00:00.001000Z  INFO document_similarity_analyzer::api::server: Server running on 0.0.0.0:3000
+    Finished release [optimized] target(s) in 45.32s
+     Running `target/release/document-similarity-analyzer`
+
+2025-12-08T08:00:00.000Z  INFO Server running on 0.0.0.0:3000
 ```
 
-### 2. Analyze Documents
+### 2. API Request & Response
 
-![Analyze Response](screenshots/analyze_response.png)
+**Request:**
 
 ```bash
-$ curl -X POST http://localhost:3000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "documents": [
-      "kucing duduk di atas tikar",
-      "anjing berlari di taman",
-      "halo dunia ini adalah tes"
-    ]
-  }'
+curl -X POST http://localhost:3000/api/analyze \
+  -F "files=@research_paper.pdf" \
+  -F "files=@reference_1.docx" \
+  -F "files=@reference_2.txt" \
+  -F "threshold=0.75"
+```
 
+**Response:**
+
+```json
 {
-  "similarity_matrix": [
-    [1.0, 0.1847, 0.0],
-    [0.1847, 1.0, 0.0],
-    [0.0, 0.0, 1.0]
+  "metadata": {
+    "documents_count": 3,
+    "total_sentences": 118,
+    "processing_time_ms": 84,
+    "threshold": 0.75
+  },
+  "matches": [
+    {
+      "source_doc": "research_paper.pdf",
+      "source_sentence_index": 20,
+      "source_sentence": "Security systems employ computer vision for surveillance and threat detection.",
+      "target_doc": "reference_1.docx",
+      "target_sentence_index": 20,
+      "target_sentence": "Surveillance systems employ computer vision for security and monitoring applications.",
+      "similarity": 0.7022883
+    }
   ],
-  "index": ["doc0", "doc1", "doc2"]
+  "global_similarity": [
+    {
+      "docA": "research_paper.pdf",
+      "docB": "reference_1.docx",
+      "score": 0.0415522
+    }
+  ]
 }
 ```
 
@@ -718,17 +233,18 @@ $ curl -X POST http://localhost:3000/analyze \
 
 ```bash
 $ cargo test
-   Compiling document-similarity-analyzer v0.1.0
-    Finished test [unoptimized + debuginfo] target(s) in 3.45s
+    Finished test [unoptimized + debuginfo] target(s) in 4.12s
      Running unittests src/lib.rs
 
-running 63 tests
-test core::idf::tests::test_compute_idf_basic ... ok
-test core::normalize::tests::test_normalize_basic ... ok
+running 83 tests
+test sentence::tests::test_split_sentences_basic ... ok
+test core::tf::tests::test_basic_tf ... ok
+test core::idf::tests::test_multiple_documents ... ok
 test core::similarity::tests::test_identical_vectors ... ok
-... (semua 63 tests passed)
+test core::sentence_pipeline::tests::test_analyze_two_documents ... ok
+... (all 83 tests passed)
 
-test result: ok. 63 passed; 0 failed; 0 ignored
+test result: ok. 83 passed; 0 failed; 0 ignored
 ```
 
 ---
@@ -739,38 +255,78 @@ test result: ok. 63 passed; 0 failed; 0 ignored
 
 Document Similarity Analyzer berhasil mengimplementasikan:
 
-1. **Algoritma TF-IDF dan Cosine Similarity** yang akurat untuk mengukur kesamaan dokumen teks
+1. **Sentence-Level Analysis** untuk plagiarism detection yang presisi:
 
-2. **Pendekatan Pemrograman Fungsional** dengan:
+   - Identifikasi kalimat spesifik yang mirip antar dokumen
+   - Response include sentence text untuk frontend highlighting
+   - Cross-document comparison only (no intra-document)
+
+2. **Multipart File Upload** dengan validasi komprehensif:
+
+   - Support PDF, DOCX, TXT
+   - Max 5 files, 10MB per file, 50MB total
+   - Automatic text extraction dan sentence splitting
+
+3. **Configurable Threshold** untuk fleksibilitas:
+
+   - Default 0.70 (balanced)
+   - User dapat adjust: ketat (0.85+) atau longgar (0.50-0.65)
+   - Filter otomatis matches by threshold
+
+4. **Pendekatan Pemrograman Fungsional**:
 
    - Pure functions di seluruh core logic
-   - Immutability pada semua data structures
-   - Function composition untuk membangun pipeline
-   - Higher-order functions (map, filter, fold)
+   - Immutability (hanya 3 `mut` untuk sorting API requirement)
+   - Function composition dengan iterator chains
+   - Higher-order functions (`map`, `filter`, `fold`, `flat_map`)
 
-3. **Parallel Processing** dengan Rayon yang meningkatkan performa hingga 4-8x pada multi-core CPU
+5. **Parallel Processing** dengan Rayon:
 
-4. **REST API** yang sederhana dan stateless menggunakan Axum
+   - Sentence normalization & tokenization (parallel)
+   - TF calculation per sentence (parallel)
+   - TF-IDF vectorization (parallel)
+   - Pairwise similarity computation (parallel)
+   - Performance improvement 4-8x pada multi-core CPU
 
-5. **Test Coverage** yang komprehensif dengan 81 tests (63 unit + 18 integration)
+6. **Comprehensive Testing**:
+   - 83 unit tests covering all modules
+   - Integration tests untuk API endpoints
+   - Test coverage untuk edge cases
 
 ### Pembelajaran
 
-Melalui proyek ini, kami memahami bahwa:
+Melalui proyek ini, kami memahami:
 
-- **Rust dan Pemrograman Fungsional** sangat kompatibel — ownership system mendorong immutability secara natural
-- **Parallel processing** menjadi trivial dengan library seperti Rayon ketika menggunakan pure functions
-- **Separation of concerns** antara core logic (pure) dan I/O (impure) menghasilkan arsitektur yang bersih
-- **Type system Rust** membantu menangkap error di compile time, bukan runtime
+- **Sentence-level analysis** lebih valuable untuk plagiarism detection dibanding document-level
+- **Rust dan pemrograman fungsional** sangat kompatibel — ownership system mendorong immutability
+- **Parallel processing** menjadi trivial dengan Rayon ketika data immutable
+- **HashMap-based vectors** lebih efficient untuk sparse data dibanding dense arrays
+- **Regex-based sentence splitting** simple namun effective untuk bahasa Indonesia/Inggris
+- **Threshold tuning** critical untuk balance antara precision dan recall
+
+### Perbedaan Sistem Lama vs Baru
+
+| Aspek           | Sistem Lama (Document-Level) | Sistem Baru (Sentence-Level)               |
+| --------------- | ---------------------------- | ------------------------------------------ |
+| **Granularity** | Per dokumen                  | **Per kalimat**                            |
+| **Output**      | Similarity matrix            | **Matched sentence pairs + global score**  |
+| **Frontend**    | Tidak bisa highlight         | **Bisa highlight exact sentences**         |
+| **Use Case**    | General similarity           | **Plagiarism detection dengan evidence**   |
+| **API**         | JSON array dokumen           | **Multipart file upload (PDF/DOCX/TXT)**   |
+| **Threshold**   | Fixed                        | **Configurable (0.0-1.0)**                 |
+| **Response**    | Matrix saja                  | **Metadata + matches + global similarity** |
 
 ### Pengembangan Selanjutnya
 
-Potensi pengembangan di masa depan:
+Potensi improvement di masa depan:
 
-- Implementasi stemming untuk bahasa Indonesia
-- Dukungan stop words removal
-- Caching hasil IDF untuk corpus yang tidak berubah
-- WebSocket untuk real-time analysis
-- Integrasi dengan frontend untuk visualisasi heatmap
+- **Stemming** untuk bahasa Indonesia (Sastrawi library)
+- **Stop words removal** untuk meningkatkan akurasi
+- **Sentence embeddings** dengan transformer models (BERT/RoBERTa)
+- **WebSocket** untuk real-time progress updates
+- **Frontend dashboard** untuk visualisasi heatmap dan highlighting
+- **Batch processing** untuk analisis corpus besar
+- **Caching IDF** untuk corpus yang tidak berubah
+- **Support more formats** (ODT, RTF, HTML)
 
 ---
